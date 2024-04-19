@@ -1,0 +1,164 @@
+{% load static tailwind_tags %}
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <title>Django Tailwind</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    {% tailwind_css %}
+  </head>
+  <body class="bg-neutral-900 antialiased text-white">
+    <div class="flex h-full flex-col min-h-screen">
+      <!-- Div con los chats y la barra superior -->
+      <div id="chatbox" class="flex-1 overflow-hidden h-full">
+        <!-- Barra superior (Actualmente solo tiene el titulo) -->
+        <div
+          class="sticky top-0 mb-1.5 flex items-center justify-between z-10 h-14 p-2 font-semibold bg-token-main-surface-primary">
+          <div class="flex items-center gap-2">
+            <div
+              class="group flex cursor-pointer items-center gap-1 rounded-xl py-2 px-3 text-xl font-medium hover:bg-token-main-surface-secondary radix-state-open:bg-token-main-surface-secondary">
+              <div>
+                <h1>SareBot</h1>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- MSG User -->
+        <div
+          class="w-full text-token-text-primary">
+          <div class="px-4 py-2 justify-center text-base md:gap-6 m-auto">
+            <div
+              class="flex flex-1 text-base mx-auto gap-3 juice:gap-4 juice:md:gap-6 md:px-5 lg:px-1 xl:px-5 md:max-w-3xl lg:max-w-[40rem] xl:max-w-[48rem]">
+              <!-- img usuario -->
+              <div class="flex-shrink-0 flex flex-col relative items-end">
+                <div>
+                  <div class="pt-0.5">
+                    <div
+                      class="gizmo-shadow-stroke flex h-6 w-6 items-center justify-center overflow-hidden rounded-full bg-white p-1">
+                      <div class="relative flex">
+                        <img
+                          alt="User"
+                          referrerpolicy="no-referrer"
+                          loading="lazy"
+                          width="24"
+                          height="24"
+                          decoding="async"
+                          data-nimg="1"
+                          class="rounded-sm"
+                          src="{% static 'chat/images/user-avatar.png' %}"
+                          style="color: transparent" />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <!-- nom user y msg -->
+              <div class="relative flex w-full flex-col">
+                <div class="font-semibold select-none">You</div>
+                <div class="flex-col gap-1 md:gap-3">
+                  <div class="flex flex-grow flex-col max-w-full">
+                    <div
+                      data-message-author-role="user"
+                      data-message-id="aaa2e162-d083-4b8f-8a3e-fbe42e43d865"
+                      dir="auto"
+                      class="min-h-[20px] text-message flex flex-col items-start gap-3 whitespace-pre-wrap break-words [.text-message+&amp;]:mt-5 overflow-x-auto">
+                      <div class="">hola</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- MSG Sarebot -->
+        <div
+          class="w-full text-token-text-primary">
+          <div class="px-4 py-2 justify-center text-base md:gap-6 m-auto">
+            <div
+              class="flex flex-1 text-base mx-auto gap-3 juice:gap-4 juice:md:gap-6 md:px-5 lg:px-1 xl:px-5 md:max-w-3xl lg:max-w-[40rem] xl:max-w-[48rem]">
+              <!-- img usuario -->
+              <div class="flex-shrink-0 flex flex-col relative items-end">
+                <div>
+                  <div class="pt-0.5">
+                    <div
+                      class="gizmo-shadow-stroke flex h-6 w-6 items-center justify-center overflow-hidden rounded-full bg-white">
+                      <div class="relative flex">
+                        <img
+                          alt="User"
+                          referrerpolicy="no-referrer"
+                          loading="lazy"
+                          width="24"
+                          height="24"
+                          decoding="async"
+                          data-nimg="1"
+                          class="rounded-sm"
+                          src="{% static 'chat/images/sarebot.png' %}"
+                          style="color: transparent" />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <!-- nom user y msg -->
+              <div class="relative flex w-full flex-col">
+                <div class="font-semibold select-none">SareBot</div>
+                <div class="flex-col gap-1 md:gap-3">
+                  <div class="flex flex-grow flex-col max-w-full">
+                    <div
+                      data-message-author-role="user"
+                      data-message-id="aaa2e162-d083-4b8f-8a3e-fbe42e43d865"
+                      dir="auto"
+                      class="min-h-[20px] text-message flex flex-col items-start gap-3 whitespace-pre-wrap break-words [.text-message+&amp;]:mt-5 overflow-x-auto">
+                      <div class="">¡Hola! ¿En qué puedo ayudarte hoy?</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- div con el textarea y el boton -->
+      <div
+        class="w-full pt-2 md:pt-0 dark:border-white/20 md:border-transparent md:dark:border-transparent md:w-[calc(100%-.5rem)]">
+        <form
+          class="stretch mx-2 flex flex-row gap-3 last:mb-2 md:mx-4 md:last:mb-6 lg:mx-auto lg:max-w-2xl xl:max-w-3xl">
+          <div class="relative flex h-full flex-1 flex-col">
+            <div class="absolute bottom-full left-0 right-0"></div>
+            <div class="flex w-full items-center">
+              <div
+                class="overflow-hidden [&amp;:has(textarea:focus)]:border-token-border-xheavy [&amp;:has(textarea:focus)]:shadow-[0_2px_6px_rgba(0,0,0,.05)] flex flex-col w-full flex-grow relative border dark:text-white rounded-2xl bg-token-main-surface-primary border-token-border-medium">
+                <textarea
+                  id="prompt-textarea"
+                  tabindex="0"
+                  rows="1"
+                  placeholder="Message SareBot…"
+                  class="m-0 w-full resize-none border-0 bg-transparent focus:ring-0 focus-visible:ring-0 dark:bg-transparent py-[10px] pr-10 md:py-3.5 md:pr-12 max-h-[25dvh] max-h-52 pl-4 md:pl-4 placeholder-black/50 dark:placeholder-white/50 md:pl-[55px]"
+                  style="height: 52px; overflow-y: hidden"></textarea>
+                <button
+                  class="absolute bottom-1.5 right-2 rounded-lg border border-black bg-black p-0.5 text-white transition-colors enabled:bg-white disabled:text-gray-400 disabled:opacity-10 dark:border-white dark:bg-white dark:hover:bg-white md:bottom-3 md:right-3">
+                  <span class="">
+                    <svg
+                      width="24"
+                      height="24"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      class="text-white dark:text-black">
+                      <path
+                        d="M7 11L12 6L17 11M12 18V7"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"></path>
+                    </svg>
+                  </span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+  </body>
+</html>
