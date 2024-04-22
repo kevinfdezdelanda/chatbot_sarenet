@@ -1,0 +1,136 @@
+{% extends 'base.html' %} {% load static tailwind_tags %} {% block content %}
+<div class="pt-24 container mx-auto px-4">
+  <h1 class="text-4xl font-bold text-neutral-600">Busquedas</h1>
+  <!-- inputs -->
+  <div class="mt-5 flex flex-col gap-2">
+    <div class="relative h-10 w-72 min-w-[200px]">
+      <select
+        class="peer h-full w-full rounded-[7px] border border-blue-gray-200 border-t-transparent bg-transparent px-3 py-2.5 font-sans text-sm font-normal text-blue-gray-700 outline outline-0 transition-all placeholder-shown:border placeholder-shown:border-blue-gray-200 placeholder-shown:border-t-blue-gray-200 empty:!bg-gray-900 focus:border-2 focus:border-gray-900 focus:border-t-transparent focus:outline-0 disabled:border-0 disabled:bg-blue-gray-50">
+        <option value="Documentacion">Documentacion</option>
+        <option value="Traductor">Traductor</option>
+        <option value="Resumen">Resumen</option>
+      </select>
+      <label
+        class="before:content[' '] after:content[' '] pointer-events-none absolute left-0 -top-1.5 flex h-full w-full select-none text-[11px] font-normal leading-tight text-blue-gray-400 transition-all before:pointer-events-none before:mt-[6.5px] before:mr-1 before:box-border before:block before:h-1.5 before:w-2.5 before:rounded-tl-md before:border-t before:border-l before:border-blue-gray-200 before:transition-all after:pointer-events-none after:mt-[6.5px] after:ml-1 after:box-border after:block after:h-1.5 after:w-2.5 after:flex-grow after:rounded-tr-md after:border-t after:border-r after:border-blue-gray-200 after:transition-all peer-placeholder-shown:text-sm peer-placeholder-shown:leading-[3.75] peer-placeholder-shown:text-blue-gray-500 peer-placeholder-shown:before:border-transparent peer-placeholder-shown:after:border-transparent peer-focus:text-[11px] peer-focus:leading-tight peer-focus:text-gray-900 peer-focus:before:border-t-2 peer-focus:before:border-l-2 peer-focus:before:border-gray-900 peer-focus:after:border-t-2 peer-focus:after:border-r-2 peer-focus:after:border-gray-900 peer-disabled:text-transparent peer-disabled:before:border-transparent peer-disabled:after:border-transparent peer-disabled:peer-placeholder-shown:text-blue-gray-500">
+        Selecciona modelo
+      </label>
+    </div>
+    <input
+      type="text"
+      id="first_name"
+      class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-neutral-400 focus:border-neutral-400 block w-full p-2.5"
+      placeholder="Buscar..." />
+  </div>
+  <!-- Resultados -->
+  <div id="result" class="mt-5">
+    <div class="p-4 border border-neutral-200 rounded-xl">
+      <p class="w-full border-b border-neutral-200 font-bold text-xl pb-4 text-neutral-700">Respuesta IA</p>
+      <div class="w-full border-b border-neutral-200 py-4">
+        <p class="text-sm pb-2 text-neutral-600 w-full flex">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" class="w-3 mr-2 fill-green-500">
+            <!--!Font Awesome Free 6.5.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2024 Fonticons, Inc.-->
+            <path
+              d="M438.6 105.4c12.5 12.5 12.5 32.8 0 45.3l-256 256c-12.5 12.5-32.8 12.5-45.3 0l-128-128c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0L160 338.7 393.4 105.4c12.5-12.5 32.8-12.5 45.3 0z" />
+          </svg>
+          Respuesta IA
+        </p>
+        <p class="text-neutral-800">
+          Lorem ipsum dolor sit amet, consectetur adipiscing elit. Maecenas nisi ipsum, facilisis id condimentum vitae, maximus at lectus. Morbi at lectus nisl. Nulla pulvinar
+          tellus a nibh mattis, id blandit ipsum mollis. Quisque felis tortor, placerat vel interdum sed, iaculis id sapien. Nullam sit amet consequat lectus. Nam aliquam lorem
+          ipsum, eu dictum dui lacinia eu. Interdum et malesuada fames ac ante ipsum primis in faucibus. Vestibulum nibh elit, cursus id sodales ut, tincidunt quis lorem. Cras
+          vitae iaculis urna.
+        </p>
+      </div>
+      <div class="w-full pt-4">
+        <p class="text-sm pb-2 text-neutral-600 w-full flex">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" class="w-3 mr-2 fill-green-500">
+            <!--!Font Awesome Free 6.5.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2024 Fonticons, Inc.-->
+            <path
+              d="M438.6 105.4c12.5 12.5 12.5 32.8 0 45.3l-256 256c-12.5 12.5-32.8 12.5-45.3 0l-128-128c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0L160 338.7 393.4 105.4c12.5-12.5 32.8-12.5 45.3 0z" />
+          </svg>
+          Quotes
+        </p>
+        <div class="flex flex-wrap gap-4">
+          <div class="py-3 px-4 border border-neutral-200 rounded-md flex max-w-80 overflow-hidden hover:shadow duration-300">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512" class="w-10 fill-blue-400 mr-2">
+              <!--!Font Awesome Free 6.5.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2024 Fonticons, Inc.-->
+              <path
+                d="M320 464c8.8 0 16-7.2 16-16V160H256c-17.7 0-32-14.3-32-32V48H64c-8.8 0-16 7.2-16 16V448c0 8.8 7.2 16 16 16H320zM0 64C0 28.7 28.7 0 64 0H229.5c17 0 33.3 6.7 45.3 18.7l90.5 90.5c12 12 18.7 28.3 18.7 45.3V448c0 35.3-28.7 64-64 64H64c-35.3 0-64-28.7-64-64V64z" />
+            </svg>
+            <p class="truncate text-neutral-600">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Maecenas nisi ipsum, facilisis id condimentum vitae</p>
+          </div>
+          <div class="py-3 px-4 border border-neutral-200 rounded-md flex max-w-80 overflow-hidden hover:shadow duration-300">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512" class="w-10 fill-blue-400 mr-2">
+              <!--!Font Awesome Free 6.5.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2024 Fonticons, Inc.-->
+              <path
+                d="M320 464c8.8 0 16-7.2 16-16V160H256c-17.7 0-32-14.3-32-32V48H64c-8.8 0-16 7.2-16 16V448c0 8.8 7.2 16 16 16H320zM0 64C0 28.7 28.7 0 64 0H229.5c17 0 33.3 6.7 45.3 18.7l90.5 90.5c12 12 18.7 28.3 18.7 45.3V448c0 35.3-28.7 64-64 64H64c-35.3 0-64-28.7-64-64V64z" />
+            </svg>
+            <p class="truncate text-neutral-600">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Maecenas nisi ipsum, facilisis id condimentum vitae</p>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- Resultados en la documentacion -->
+    <div class="flex flex-col mt-10 gap-4">
+      <p class="border-b border-neutral-200 font-bold text-xl pb-4 text-neutral-700">Resultados</p>
+      <div class="flex flex-col relative border-b border-neutral-200 pb-4 group">
+        <span class="rounded bg-neutral-200 absolute -left-12 px-1 text-sm top-1">0.89</span>
+        <div class="flex align-text-bottom mb-2">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512" class="w-4 fill-blue-400 mr-2">
+            <!--!Font Awesome Free 6.5.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2024 Fonticons, Inc.-->
+            <path
+              d="M320 464c8.8 0 16-7.2 16-16V160H256c-17.7 0-32-14.3-32-32V48H64c-8.8 0-16 7.2-16 16V448c0 8.8 7.2 16 16 16H320zM0 64C0 28.7 28.7 0 64 0H229.5c17 0 33.3 6.7 45.3 18.7l90.5 90.5c12 12 18.7 28.3 18.7 45.3V448c0 35.3-28.7 64-64 64H64c-35.3 0-64-28.7-64-64V64z" />
+          </svg>
+          <p class="truncate text-blue-400 text-lg font-semibold group-hover:underline">
+            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Maecenas nisi ipsum, facilisis id condimentum vitae
+          </p>
+        </div>
+        <p class="text-sm text-neutral-700">
+          Lorem ipsum dolor sit amet, <span class="bg-yellow-100 font-bold p-1">consectetur</span> adipiscing elit. Maecenas nisi ipsum, facilisis id condimentum vitae, maximus at
+          lectus. Morbi at lectus nisl. Nulla pulvinar tellus a nibh mattis, id blandit ipsum mollis. Quisque felis tortor, placerat vel interdum sed, iaculis id sapien. Nullam sit
+          amet consequat lectus. Nam aliquam lorem ipsum, eu dictum dui lacinia eu. Interdum et malesuada fames ac ante ipsum primis in faucibus. Vestibulum nibh elit, cursus id
+          sodales ut, tincidunt quis lorem. Cras vitae iaculis urna.
+        </p>
+      </div>
+      <div class="flex flex-col relative border-b border-neutral-200 pb-4 group">
+        <span class="rounded bg-neutral-200 absolute -left-12 px-1 text-sm top-1">0.89</span>
+        <div class="flex align-text-bottom mb-2">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512" class="w-4 fill-blue-400 mr-2">
+            <!--!Font Awesome Free 6.5.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2024 Fonticons, Inc.-->
+            <path
+              d="M320 464c8.8 0 16-7.2 16-16V160H256c-17.7 0-32-14.3-32-32V48H64c-8.8 0-16 7.2-16 16V448c0 8.8 7.2 16 16 16H320zM0 64C0 28.7 28.7 0 64 0H229.5c17 0 33.3 6.7 45.3 18.7l90.5 90.5c12 12 18.7 28.3 18.7 45.3V448c0 35.3-28.7 64-64 64H64c-35.3 0-64-28.7-64-64V64z" />
+          </svg>
+          <p class="truncate text-blue-400 text-lg font-semibold group-hover:underline">
+            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Maecenas nisi ipsum, facilisis id condimentum vitae
+          </p>
+        </div>
+        <p class="text-sm text-neutral-700">
+          Lorem ipsum dolor sit amet, <span class="bg-yellow-100 font-bold p-1">consectetur</span> adipiscing elit. Maecenas nisi ipsum, facilisis id condimentum vitae, maximus at
+          lectus. Morbi at lectus nisl. Nulla pulvinar tellus a nibh mattis, id blandit ipsum mollis. Quisque felis tortor, placerat vel interdum sed, iaculis id sapien. Nullam sit
+          amet consequat lectus. Nam aliquam lorem ipsum, eu dictum dui lacinia eu. Interdum et malesuada fames ac ante ipsum primis in faucibus. Vestibulum nibh elit, cursus id
+          sodales ut, tincidunt quis lorem. Cras vitae iaculis urna.
+        </p>
+      </div>
+      <div class="flex flex-col relative border-b border-neutral-200 pb-4 group">
+        <span class="rounded bg-neutral-200 absolute -left-12 px-1 text-sm top-1">0.89</span>
+        <div class="flex align-text-bottom mb-2">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512" class="w-4 fill-blue-400 mr-2">
+            <!--!Font Awesome Free 6.5.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2024 Fonticons, Inc.-->
+            <path
+              d="M320 464c8.8 0 16-7.2 16-16V160H256c-17.7 0-32-14.3-32-32V48H64c-8.8 0-16 7.2-16 16V448c0 8.8 7.2 16 16 16H320zM0 64C0 28.7 28.7 0 64 0H229.5c17 0 33.3 6.7 45.3 18.7l90.5 90.5c12 12 18.7 28.3 18.7 45.3V448c0 35.3-28.7 64-64 64H64c-35.3 0-64-28.7-64-64V64z" />
+          </svg>
+          <p class="truncate text-blue-400 text-lg font-semibold group-hover:underline">
+            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Maecenas nisi ipsum, facilisis id condimentum vitae
+          </p>
+        </div>
+        <p class="text-sm text-neutral-700">
+          Lorem ipsum dolor sit amet, <span class="bg-yellow-100 font-bold p-1">consectetur</span> adipiscing elit. Maecenas nisi ipsum, facilisis id condimentum vitae, maximus at
+          lectus. Morbi at lectus nisl. Nulla pulvinar tellus a nibh mattis, id blandit ipsum mollis. Quisque felis tortor, placerat vel interdum sed, iaculis id sapien. Nullam sit
+          amet consequat lectus. Nam aliquam lorem ipsum, eu dictum dui lacinia eu. Interdum et malesuada fames ac ante ipsum primis in faucibus. Vestibulum nibh elit, cursus id
+          sodales ut, tincidunt quis lorem. Cras vitae iaculis urna.
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
