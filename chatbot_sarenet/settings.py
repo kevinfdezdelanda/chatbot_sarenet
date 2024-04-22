@@ -25,7 +25,7 @@ SECRET_KEY = "django-insecure-c(ci(xnmf!6^afznwtf6ql0anwd&4sa5@ebu7sj#+95o_blpzx
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['172.26.187.26']
+ALLOWED_HOSTS = ['localhost', '172.26.187.26']
 
 INTERNAL_IPS = [
     "127.0.0.1",
@@ -126,6 +126,7 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/5.0/howto/static-files/
 
 STATIC_URL = "static/"
+STATIC_ROOT = "/home/sarebot/sarebot_static"
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.0/ref/settings/#default-auto-field
