@@ -1,14 +1,18 @@
-{% extends 'base.html' %} {% load static tailwind_tags %} {% block content %}
+{% extends 'base.html' %} {% load static tailwind_tags %} 
+{% block scripts %}
+<script type="text/javascript" src="{% static 'chat/busquedas.js' %}"></script>
+{% endblock %}
+{% block content %}
 <div class="pt-24 container mx-auto px-4 mb-10">
   <h1 class="text-4xl font-bold text-neutral-600">Busquedas</h1>
   <!-- inputs -->
   <div class="mt-5 flex flex-col gap-2">
     <div class="flex flex-wrap items-center gap-4">
       <div class="relative h-10 w-72 min-w-[200px]">
-        <select
+        <select id="promptSelector"
           class="peer h-full w-full rounded-[7px] border border-blue-gray-200 border-t-transparent bg-transparent px-3 py-2.5 font-sans text-sm font-normal text-blue-gray-700 outline outline-0 transition-all placeholder-shown:border placeholder-shown:border-blue-gray-200 placeholder-shown:border-t-blue-gray-200 empty:!bg-gray-900 focus:border-2 focus:border-gray-900 focus:border-t-transparent focus:outline-0 disabled:border-0 disabled:bg-blue-gray-50">
           {% for prompt in prompts %}
-          <option value="{{prompt.nombre}}">{{prompt.nombre}}</option>
+          <option value="{{prompt.id}}" {% if prompt.id|stringformat:"s" == request.GET.prompt %}selected{% endif %}>{{prompt.nombre}}</option>
           {% endfor %}
         </select>
         <label
@@ -16,7 +20,7 @@
           Selecciona modelo
         </label>
       </div>
-      <p class="text-neutral-600">Ejemplo de la descripción del prompt</p>
+      <p  id="description" class="text-neutral-600">{{prompts.0.descripcion}}</p>
     </div>
     <input
       type="text"
@@ -25,6 +29,14 @@
       placeholder="Buscar..." />
   </div>
   <!-- Resultados -->
+
+
+  
+  <button class="bg-slate-400 border" id="apiCallButton">Call API</button>
+  <div id="apiResponse">Response will show here.</div>
+
+
+
   <div id="result" class="mt-5">
     <div class="p-4 border border-neutral-200 rounded-xl">
       <p class="w-full border-b border-neutral-200 font-bold text-xl pb-4 text-neutral-700">Respuesta IA</p>
