@@ -34,4 +34,13 @@ class Migration(migrations.Migration):
                 ),
             ],
         ),
+        migrations.CreateModel(
+            name="propmts",
+            fields=[
+                ("id", models.BigAutoField(primary_key=True, serialize=False)),
+                ("nombre_prompt", models.CharField(max_length=100)),
+                ("descripcion", models.TextField()),
+                ("texto", models.TextField()),
+            ],
+        ),
     ]
