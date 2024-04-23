@@ -1,2 +1,2 @@
-install django
-install openai
+django==5.0.4
+openai==1.21.2
