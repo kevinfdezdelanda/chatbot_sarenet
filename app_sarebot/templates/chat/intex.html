@@ -1,0 +1,24 @@
+<!-- chat/templates/chat/chat.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chatbot</title>
+</head>
+<body>
+    <div id="chat-container">
+        <!-- Formulario para enviar mensajes -->
+        <form action="" method="post">
+            {% csrf_token %}
+            <input type="text" name="message" placeholder="Escribe un mensaje...">
+            <button type="submit">Enviar</button>
+        </form>
+
+        {% if user_message %}
+        <div>Tú: {{ user_message }}</div>
+        <div>Bot: {{ bot_response }}</div>
+        {% endif %}
+    </div>
+</body>
+</html>
