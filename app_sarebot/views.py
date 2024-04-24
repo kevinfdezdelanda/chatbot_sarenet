@@ -20,17 +20,18 @@ def get_prompt_description(request):
         return JsonResponse({'description': ''})  
 
 def api_view(request):
-    result = llamar_api()
-    return HttpResponse(result, content_type='text/plain')
+    user_prompt = request.POST.get('first_name')
+    result = llamar_api(user_prompt)
+    return JsonResponse(result)
     
-def llamar_api():
+def llamar_api(user_prompt):
     url = "http://172.26.215.178:1234/v1/chat/completions"
     headers = {'Content-Type': 'application/json'}
     data = {
         "model": "bartowski/c4ai-command-r-v01-GGUF",
         "messages": [
             {"role": "system", "content": "Always answer in rhymes."},
-            {"role": "user", "content": "Introduce yourself."}
+            {"role": "user", "content": user_prompt}
         ],
         "temperature": 0.7,
         "max_tokens": -1,
@@ -48,6 +49,6 @@ def llamar_api():
         if response_data['choices']:
             # Extrae el contenido del primer 'choice' y del 'message'
             content = response_data['choices'][0]['message']['content']
-            return content
+            return {'respuesta': content}
     else:
         return {'error': 'Request failed', 'status_code': response.status_code}

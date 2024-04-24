@@ -43,13 +43,33 @@ window.onload = function () {
       document.getElementById('description').innerText = 'Description will appear here...';
     }
   });
-  document.getElementById('apiCallButton').addEventListener('click', function () {
-    alert(1);
-    fetch('call-api/')
-      .then((response) => response.text())
-      .then((text) => {
-        document.getElementById('apiResponse').innerHTML = text;
-      })
-      .catch((error) => console.error('Error:', error));
-  });
+  // document.getElementById('apiCallButton').addEventListener('click', function () {
+  //   alert(1);
+  //   fetch('call-api/')
+  //     .then((response) => response.text())
+  //     .then((text) => {
+  //       document.getElementById('apiResponse').innerHTML = text;
+  //     })
+  //     .catch((error) => console.error('Error:', error));
+  // });
+  document.getElementById('formulario-busqueda').onsubmit = function(event) {
+    event.preventDefault();
+    var formData = new FormData(this);
+    fetch(this.action, {
+        method: 'POST',
+        body: formData,
+        headers: {
+            'X-CSRFToken': formData.get('csrfmiddlewaretoken'),
+        },
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.error) {
+            document.getElementById('apiResponse').innerText = data.error;
+        } else {
+            document.getElementById('apiResponse').innerText = data.respuesta;
+        }
+    })
+    .catch(error => console.error('Error:', error));
+};
 };
