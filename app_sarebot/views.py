@@ -1,5 +1,6 @@
+import json
 from django.shortcuts import render
-from django.http import HttpResponse, JsonResponse
+from django.http import HttpResponse, JsonResponse, StreamingHttpResponse
 import requests
 from .models import Prompt
 
@@ -20,8 +21,27 @@ def get_prompt_description(request):
         return JsonResponse({'description': ''})  
 
 def api_view(request):
-    result = llamar_api()
-    return HttpResponse(result, content_type='text/plain')
+    def event_stream():
+        stream = llamar_api()
+        for chunk in stream:
+            if chunk:  # Asegura que el chunk no está vacío
+                data_str = chunk.decode('utf-8').replace('data: ', '')
+                if data_str.strip() == '[DONE]':  # Chequea si es el mensaje de finalización
+                    yield "event: done\ndata: \n\n"  # Envía un evento personalizado llamado 'done'
+                    break  # Rompe el ciclo para terminar el stream
+                else:
+                    try:
+                        data = json.loads(data_str)
+                        if 'choices' in data:
+                            for choice in data['choices']:
+                                if 'delta' in choice and 'content' in choice['delta']:
+                                    yield f"data: {choice['delta']['content']}\n\n"
+                    except json.JSONDecodeError as e:
+                        yield f"data: Error parsing JSON: {str(e)}\n\n"
+
+    response = StreamingHttpResponse(event_stream(), content_type='text/event-stream')
+    response['Cache-Control'] = 'no-cache'
+    return response
     
 def llamar_api():
     url = "http://172.26.215.178:1234/v1/chat/completions"
@@ -34,20 +54,13 @@ def llamar_api():
         ],
         "temperature": 0.7,
         "max_tokens": -1,
-        "stream": False
+        "stream": True  # Activar el streaming
     }
 
     # Usar requests para enviar una solicitud POST
-    response = requests.post(url, json=data, headers=headers)
+    response = requests.post(url, json=data, headers=headers, stream=True)  # Añadir 'stream=True' a la solicitud
 
-    # Manejar la respuesta
     if response.status_code == 200:
-        response_data = response.json()
-        print(response_data)
-        # Asegúrate de que el campo 'choices' contiene al menos un elemento
-        if response_data['choices']:
-            # Extrae el contenido del primer 'choice' y del 'message'
-            content = response_data['choices'][0]['message']['content']
-            return content
+        return response.iter_lines()
     else:
         return {'error': 'Request failed', 'status_code': response.status_code}
