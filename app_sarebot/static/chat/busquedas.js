@@ -38,66 +38,30 @@ async function obtener_prompt(select) {
   return prompt;
 }
 
-// async function llamar_api(input, select) {
-//   texto = input.value
-//   prompt1 = await obtener_prompt(select)
-//   if(texto != "" && prompt1!=""){
-//     disable_enable_elements(false);
-//     document.getElementById('apiResponse').innerHTML = ''; // Limpia contenido anterior
-//     msg = document.getElementById("msg-generando").style.display = "flex"
-//     document.getElementById('result').style.display = "block"
-//     var url = `call-api/?system=${encodeURIComponent(prompt1)}&user=${encodeURIComponent(texto)}`;
-//     var eventSource = new EventSource(url);
-//     eventSource.onmessage = function (event) {
-//       document.getElementById("msg-generando").style.display = "none"
-//       document.getElementById('apiResponse').innerHTML += event.data;
-//     };
-//     eventSource.addEventListener('done', function (event) {
-//       console.log('Stream done, closing connection');
-//       eventSource.close(); // Cierra la conexión del lado del cliente
-//       disable_enable_elements(true);
-//     });
-//     eventSource.onerror = function (error) {
-//       console.error('Error:', error);
-//       eventSource.close();
-//       disable_enable_elements(true);
-//     };
-//   }
-  
-// }
-
 async function llamar_api(input, select) {
-  const texto = input.value;
-  const prompt1 = await obtener_prompt(select);
-  if (texto !== "" && prompt1 !== "") {
+  texto = input.value
+  prompt1 = await obtener_prompt(select)
+  if(texto != "" && prompt1!=""){
     disable_enable_elements(false);
     document.getElementById('apiResponse').innerHTML = ''; // Limpia contenido anterior
-    document.getElementById("msg-generando").style.display = "flex";
-    document.getElementById('result').style.display = "block";
-
-    const url = 'call-api/';
-    const data = {
-      system: prompt1,
-      user: texto
+    msg = document.getElementById("msg-generando").style.display = "flex"
+    document.getElementById('result').style.display = "block"
+    var url = `call-api/?system=${encodeURIComponent(prompt1)}&user=${encodeURIComponent(texto)}`;
+    var eventSource = new EventSource(url);
+    eventSource.onmessage = function (event) {
+      document.getElementById("msg-generando").style.display = "none"
+      document.getElementById('apiResponse').innerHTML += event.data;
     };
-
-    fetch(url, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(data)
-    })
-    .then(response => response.text())
-    .then(data => {
-      document.getElementById("msg-generando").style.display = "none";
-      document.getElementById('apiResponse').innerHTML += data;
-      disable_enable_elements(true);
-    })
-    .catch(error => {
-      console.error('Error:', error);
+    eventSource.addEventListener('done', function (event) {
+      console.log('Stream done, closing connection');
+      eventSource.close(); // Cierra la conexión del lado del cliente
       disable_enable_elements(true);
     });
+    eventSource.onerror = function (error) {
+      console.error('Error:', error);
+      eventSource.close();
+      disable_enable_elements(true);
+    };
   }
 }
 

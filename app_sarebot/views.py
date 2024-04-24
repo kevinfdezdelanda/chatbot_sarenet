@@ -31,10 +31,8 @@ def get_prompt(request):
         return JsonResponse({'prompt': ''})  
 
 def api_view(request):
-    system = request.POST.get('system', '')
-    user = request.POST.get('user', '')
-    
-    print(f"Received prompt: {system}")
+    system = request.GET.get('system', '')
+    user = request.GET.get('user', '')
     def event_stream():
         complete_response = []
         stream = llamar_api(user, system)
