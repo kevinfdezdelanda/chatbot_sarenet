@@ -16,13 +16,26 @@ def get_prompt_description(request):
     prompt_id = request.GET.get('prompt_id')
     if prompt_id:
         prompt = Prompt.objects.get(id=prompt_id)
+        print(prompt.descripcion)
         return JsonResponse({'description': prompt.descripcion})
     else:
         return JsonResponse({'description': ''})  
+    
+# Funcion para obtener el prompt
+def get_prompt(request):
+    prompt_id = request.GET.get('prompt_id')
+    if prompt_id:
+        prompt = Prompt.objects.get(id=prompt_id)
+        return JsonResponse({'prompt': prompt.texto})
+    else:
+        return JsonResponse({'prompt': ''})  
 
 def api_view(request):
+    system = request.GET.get('system', '')
+    user = request.GET.get('user', '')
+    print(f"Received prompt: {system}")
     def event_stream():
-        stream = llamar_api()
+        stream = llamar_api(user, system)
         for chunk in stream:
             if chunk:  # Asegura que el chunk no está vacío
                 data_str = chunk.decode('utf-8').replace('data: ', '')
@@ -43,14 +56,14 @@ def api_view(request):
     response['Cache-Control'] = 'no-cache'
     return response
     
-def llamar_api():
+def llamar_api(user, system):
     url = "http://172.26.215.178:1234/v1/chat/completions"
     headers = {'Content-Type': 'application/json'}
     data = {
         "model": "bartowski/c4ai-command-r-v01-GGUF",
         "messages": [
-            {"role": "system", "content": "Always answer in rhymes."},
-            {"role": "user", "content": "Introduce yourself."}
+            {"role": "system", "content": system},
+            {"role": "user", "content": user}
         ],
         "temperature": 0.7,
         "max_tokens": -1,
