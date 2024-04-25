@@ -1,7 +1,17 @@
 from django.contrib import admin
 from .models import Prompt, Chat
 
-class SoloLecturaChat(admin.ModelAdmin):
+class AdminPrompt(admin.ModelAdmin):
+    # Campos que se muestran en el listado de Prompts
+    list_display = ["nombre", "descripcion", "texto"]
+
+class AdminChat(admin.ModelAdmin):
+    # Campos que se muestran en la lista de Chats
+    list_display = ["pregunta", "prompt", "respuesta", "timestamp", "valoracion"]
+    
+    # Campos por los que se puede filtrar
+    list_filter = ["prompt", "valoracion", "timestamp"]
+    
     # Para que no se pueda editar ningún campo
     readonly_fields = [field.name for field in Chat._meta.get_fields()]
     
@@ -15,5 +25,5 @@ class SoloLecturaChat(admin.ModelAdmin):
     def has_delete_permission(self, request, obj=None):
         return False
 
-admin.site.register(Prompt)
-admin.site.register(Chat, SoloLecturaChat)
+admin.site.register(Prompt, AdminPrompt)
+admin.site.register(Chat, AdminChat)

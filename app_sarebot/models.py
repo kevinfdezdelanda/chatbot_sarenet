@@ -10,7 +10,7 @@ class Prompt(models.Model):
     texto = models.TextField()
     
     def __str__(self) -> str:
-        return f"{self.nombre}: {self.descripcion}"
+        return f"{self.nombre}"
 
 class Chat(models.Model):
     id = models.BigAutoField(primary_key=True)
@@ -19,8 +19,8 @@ class Chat(models.Model):
     valoracion = models.BooleanField(blank=True, null=True)
     comentario_val = models.CharField(blank=True, max_length=250, null=True)
     timestamp = models.DateTimeField(auto_now_add=True)
+    prompt = models.ForeignKey(Prompt, on_delete=models.PROTECT)
     # id_conversacion = models.ForeignKey(Conversacion, on_delete=models.CASCADE)
-    id_prompt = models.ForeignKey(Prompt, on_delete=models.PROTECT)
     
     def __str__(self) -> str:
-        return f"{self.id}: {self.pregunta}"
+        return f"{self.pregunta}"

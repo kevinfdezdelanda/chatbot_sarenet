@@ -82,5 +82,5 @@ def llamar_api(user, system):
         return {'error': 'Request failed', 'status_code': response.status_code}
     
 def registrarLog(user_prompt, system_prompt, response):
-    nuevo_registro = Chat(pregunta=user_prompt, respuesta=response, id_prompt=Prompt.objects.get(texto=system_prompt))
+    nuevo_registro = Chat(pregunta=user_prompt, respuesta=response, prompt=Prompt.objects.get(texto=system_prompt))
     nuevo_registro.save()
