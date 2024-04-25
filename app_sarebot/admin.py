@@ -15,4 +15,5 @@ class SoloLecturaChat(admin.ModelAdmin):
     def has_delete_permission(self, request, obj=None):
         return False
 
-admin.site.register(Prompt, Chat, SoloLecturaChat)
+admin.site.register(Prompt)
+admin.site.register(Chat, SoloLecturaChat)

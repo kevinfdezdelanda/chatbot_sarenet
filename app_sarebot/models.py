@@ -21,3 +21,6 @@ class Chat(models.Model):
     timestamp = models.DateTimeField(auto_now_add=True)
     # id_conversacion = models.ForeignKey(Conversacion, on_delete=models.CASCADE)
     id_prompt = models.ForeignKey(Prompt, on_delete=models.PROTECT)
+    
+    def __str__(self) -> str:
+        return f"{self.id}: {self.pregunta}"
