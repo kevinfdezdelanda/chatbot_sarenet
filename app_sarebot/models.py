@@ -8,6 +8,9 @@ class Prompt(models.Model):
     nombre = models.CharField(max_length=100)
     descripcion = models.TextField()
     texto = models.TextField()
+    
+    def __str__(self) -> str:
+        return f"{self.nombre}: {self.descripcion}"
 
 class Chat(models.Model):
     id = models.BigAutoField(primary_key=True)
