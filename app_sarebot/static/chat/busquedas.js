@@ -63,7 +63,6 @@ async function llamar_api(input, select) {
       disable_enable_elements(true);
     };
   }
-  
 }
 
 function disable_enable_elements(enable){
