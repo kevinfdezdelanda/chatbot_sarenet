@@ -3,7 +3,7 @@
 <script type="text/javascript" src="{% static 'chat/busquedas.js' %}"></script>
 {% endblock %}
 {% block content %}
-<div class="pt-24 container mx-auto px-4 mb-10">
+<div class="pt-24 container mx-auto px-4 mb-10 flex flex-col min-h-screen2">
   <h1 class="text-4xl font-bold text-neutral-600">Consultas</h1>
   <!-- inputs -->
   <div class="mt-5 flex flex-col gap-2">
@@ -23,37 +23,30 @@
       <p  id="description" class="text-neutral-600">{{prompts.0.descripcion}}</p>
     </div>
     <div class="w-full flex gap-2">
-      <input
-      type="text"
+      <textarea
       id="texto_prompt"
-      class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-neutral-400 focus:border-neutral-400 block w-full p-2.5 disabled:opacity-65"
-      placeholder="Consultar..." />
-      <button id="apiCallButton"
-        class="rounded-lg border border-gray-300 bg-neutral-100 p-0.5 text-red-600 transition enabled:hover:bg-white enabled:hover:shadow-lg w-11 flex items-center disabled:opacity-65">
-        <span class="m-auto">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" class="w-3.5 fill-red-600">
-            <!--!Font Awesome Free 6.5.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2024 Fonticons, Inc.-->
-            <path
-              d="M416 208c0 45.9-14.9 88.3-40 122.7L502.6 457.4c12.5 12.5 12.5 32.8 0 45.3s-32.8 12.5-45.3 0L330.7 376c-34.4 25.2-76.8 40-122.7 40C93.1 416 0 322.9 0 208S93.1 0 208 0S416 93.1 416 208zM208 352a144 144 0 1 0 0-288 144 144 0 1 0 0 288z" />
-          </svg>
-        </span>
-      </button>
+      class="bg-gray-50 border min-h-11 h-11 max-h-96 resize-y border-gray-300 text-gray-900 text-sm rounded focus:ring-neutral-400 focus:border-neutral-400 block w-full p-2.5 disabled:opacity-65"
+      placeholder="Consultar..."></textarea>
+      <div>
+        <button id="apiCallButton"
+          class="rounded-lg border border-gray-300 bg-neutral-100 p-0.5 text-red-600 transition enabled:hover:bg-white enabled:hover:shadow-lg w-11 h-11   flex items-center disabled:opacity-65">
+          <span class="m-auto">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" class="w-3.5 fill-red-600">
+              <!--!Font Awesome Free 6.5.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2024 Fonticons, Inc.-->
+              <path
+                d="M416 208c0 45.9-14.9 88.3-40 122.7L502.6 457.4c12.5 12.5 12.5 32.8 0 45.3s-32.8 12.5-45.3 0L330.7 376c-34.4 25.2-76.8 40-122.7 40C93.1 416 0 322.9 0 208S93.1 0 208 0S416 93.1 416 208zM208 352a144 144 0 1 0 0-288 144 144 0 1 0 0 288z" />
+            </svg>
+          </span>
+        </button>
+      </div>
     </div>
     
   </div>
   <!-- Resultados -->
-
-
-  
-  {% comment %} <button class="bg-slate-400 border" id="apiCallButton">Call API</button>
-  <div id="apiResponse">Response will show here.</div> {% endcomment %}
-  
-
-
   <div id="result" class="mt-5 hidden">
     <div class="p-4 border border-neutral-200 rounded-xl">
       <p class="w-full border-b border-neutral-200 font-bold text-xl pb-4 text-neutral-700">Respuesta IA</p>
-      <div class="w-full border-b border-neutral-200 py-4">
+      <div class="w-full py-4">
         <p class="text-sm pb-2 text-neutral-600 w-full flex">
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" class="w-3 mr-2 fill-green-500">
             <!--!Font Awesome Free 6.5.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2024 Fonticons, Inc.-->
@@ -62,100 +55,25 @@
           </svg>
           Respuesta IA
         </p>
-        <p class="text-neutral-800" id="apiResponse">
-          <div id="msg-generando" class="flex items-center gap-2"><p class="text-blue-500">Generando <p><img class="w-6" src="{% static 'chat/images/loading.gif' %}" alt="cargando"/></div>
-        </p>
-      </div>
-      <div class="w-full pt-4">
-        <p class="text-sm pb-2 text-neutral-600 w-full flex">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" class="w-3 mr-2 fill-green-500">
-            <!--!Font Awesome Free 6.5.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2024 Fonticons, Inc.-->
-            <path
-              d="M438.6 105.4c12.5 12.5 12.5 32.8 0 45.3l-256 256c-12.5 12.5-32.8 12.5-45.3 0l-128-128c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0L160 338.7 393.4 105.4c12.5-12.5 32.8-12.5 45.3 0z" />
-          </svg>
-          Quotes
-        </p>
-        <div class="flex flex-wrap gap-4">
-          <div class="py-3 px-4 border border-neutral-200 rounded-md flex max-w-80 overflow-hidden hover:shadow duration-300">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512" class="w-10 fill-blue-400 mr-2">
-              <!--!Font Awesome Free 6.5.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2024 Fonticons, Inc.-->
-              <path
-                d="M320 464c8.8 0 16-7.2 16-16V160H256c-17.7 0-32-14.3-32-32V48H64c-8.8 0-16 7.2-16 16V448c0 8.8 7.2 16 16 16H320zM0 64C0 28.7 28.7 0 64 0H229.5c17 0 33.3 6.7 45.3 18.7l90.5 90.5c12 12 18.7 28.3 18.7 45.3V448c0 35.3-28.7 64-64 64H64c-35.3 0-64-28.7-64-64V64z" />
-            </svg>
-            <p class="truncate text-neutral-600">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Maecenas nisi ipsum, facilisis id condimentum vitae</p>
+        <p class="text-neutral-800">
+          <div id="msg-generando" class="flex items-center gap-2">
+            <p class="text-blue-500">Generando </p>
+            <img class="w-6" src="{% static 'chat/images/loading.gif' %}" alt="cargando"/>
           </div>
-          <div class="py-3 px-4 border border-neutral-200 rounded-md flex max-w-80 overflow-hidden hover:shadow duration-300">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512" class="w-10 fill-blue-400 mr-2">
-              <!--!Font Awesome Free 6.5.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2024 Fonticons, Inc.-->
-              <path
-                d="M320 464c8.8 0 16-7.2 16-16V160H256c-17.7 0-32-14.3-32-32V48H64c-8.8 0-16 7.2-16 16V448c0 8.8 7.2 16 16 16H320zM0 64C0 28.7 28.7 0 64 0H229.5c17 0 33.3 6.7 45.3 18.7l90.5 90.5c12 12 18.7 28.3 18.7 45.3V448c0 35.3-28.7 64-64 64H64c-35.3 0-64-28.7-64-64V64z" />
-            </svg>
-            <p class="truncate text-neutral-600">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Maecenas nisi ipsum, facilisis id condimentum vitae</p>
-          </div>
-        </div>
-      </div>
-    </div>
-    <!-- Resultados en la documentacion -->
-    <div class="flex flex-col mt-10 gap-4">
-      <p class="border-b border-neutral-200 font-bold text-xl pb-4 text-neutral-700">Resultados</p>
-      <div class="flex flex-col relative border-b border-neutral-200 pb-4 group">
-        <span class="rounded bg-neutral-200 absolute -left-12 px-1 text-sm top-1">0.89</span>
-        <div class="flex align-text-bottom mb-2">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512" class="w-4 fill-blue-400 mr-2">
-            <!--!Font Awesome Free 6.5.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2024 Fonticons, Inc.-->
-            <path
-              d="M320 464c8.8 0 16-7.2 16-16V160H256c-17.7 0-32-14.3-32-32V48H64c-8.8 0-16 7.2-16 16V448c0 8.8 7.2 16 16 16H320zM0 64C0 28.7 28.7 0 64 0H229.5c17 0 33.3 6.7 45.3 18.7l90.5 90.5c12 12 18.7 28.3 18.7 45.3V448c0 35.3-28.7 64-64 64H64c-35.3 0-64-28.7-64-64V64z" />
-          </svg>
-          <p class="truncate text-blue-400 text-lg font-semibold group-hover:underline">
-            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Maecenas nisi ipsum, facilisis id condimentum vitae
-          </p>
-        </div>
-        <p class="text-sm text-neutral-700">
-          Lorem ipsum dolor sit amet, <span class="bg-yellow-100 font-bold p-1">consectetur</span> adipiscing elit. Maecenas nisi ipsum, facilisis id condimentum vitae, maximus at
-          lectus. Morbi at lectus nisl. Nulla pulvinar tellus a nibh mattis, id blandit ipsum mollis. Quisque felis tortor, placerat vel interdum sed, iaculis id sapien. Nullam sit
-          amet consequat lectus. Nam aliquam lorem ipsum, eu dictum dui lacinia eu. Interdum et malesuada fames ac ante ipsum primis in faucibus. Vestibulum nibh elit, cursus id
-          sodales ut, tincidunt quis lorem. Cras vitae iaculis urna.
-        </p>
-      </div>
-      <div class="flex flex-col relative border-b border-neutral-200 pb-4 group">
-        <span class="rounded bg-neutral-200 absolute -left-12 px-1 text-sm top-1">0.89</span>
-        <div class="flex align-text-bottom mb-2">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512" class="w-4 fill-blue-400 mr-2">
-            <!--!Font Awesome Free 6.5.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2024 Fonticons, Inc.-->
-            <path
-              d="M320 464c8.8 0 16-7.2 16-16V160H256c-17.7 0-32-14.3-32-32V48H64c-8.8 0-16 7.2-16 16V448c0 8.8 7.2 16 16 16H320zM0 64C0 28.7 28.7 0 64 0H229.5c17 0 33.3 6.7 45.3 18.7l90.5 90.5c12 12 18.7 28.3 18.7 45.3V448c0 35.3-28.7 64-64 64H64c-35.3 0-64-28.7-64-64V64z" />
-          </svg>
-          <p class="truncate text-blue-400 text-lg font-semibold group-hover:underline">
-            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Maecenas nisi ipsum, facilisis id condimentum vitae
-          </p>
-        </div>
-        <p class="text-sm text-neutral-700">
-          Lorem ipsum dolor sit amet, <span class="bg-yellow-100 font-bold p-1">consectetur</span> adipiscing elit. Maecenas nisi ipsum, facilisis id condimentum vitae, maximus at
-          lectus. Morbi at lectus nisl. Nulla pulvinar tellus a nibh mattis, id blandit ipsum mollis. Quisque felis tortor, placerat vel interdum sed, iaculis id sapien. Nullam sit
-          amet consequat lectus. Nam aliquam lorem ipsum, eu dictum dui lacinia eu. Interdum et malesuada fames ac ante ipsum primis in faucibus. Vestibulum nibh elit, cursus id
-          sodales ut, tincidunt quis lorem. Cras vitae iaculis urna.
-        </p>
-      </div>
-      <div class="flex flex-col relative border-b border-neutral-200 pb-4 group">
-        <span class="rounded bg-neutral-200 absolute -left-12 px-1 text-sm top-1">0.89</span>
-        <div class="flex align-text-bottom mb-2">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512" class="w-4 fill-blue-400 mr-2">
-            <!--!Font Awesome Free 6.5.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2024 Fonticons, Inc.-->
-            <path
-              d="M320 464c8.8 0 16-7.2 16-16V160H256c-17.7 0-32-14.3-32-32V48H64c-8.8 0-16 7.2-16 16V448c0 8.8 7.2 16 16 16H320zM0 64C0 28.7 28.7 0 64 0H229.5c17 0 33.3 6.7 45.3 18.7l90.5 90.5c12 12 18.7 28.3 18.7 45.3V448c0 35.3-28.7 64-64 64H64c-35.3 0-64-28.7-64-64V64z" />
-          </svg>
-          <p class="truncate text-blue-400 text-lg font-semibold group-hover:underline">
-            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Maecenas nisi ipsum, facilisis id condimentum vitae
-          </p>
-        </div>
-        <p class="text-sm text-neutral-700">
-          Lorem ipsum dolor sit amet, <span class="bg-yellow-100 font-bold p-1">consectetur</span> adipiscing elit. Maecenas nisi ipsum, facilisis id condimentum vitae, maximus at
-          lectus. Morbi at lectus nisl. Nulla pulvinar tellus a nibh mattis, id blandit ipsum mollis. Quisque felis tortor, placerat vel interdum sed, iaculis id sapien. Nullam sit
-          amet consequat lectus. Nam aliquam lorem ipsum, eu dictum dui lacinia eu. Interdum et malesuada fames ac ante ipsum primis in faucibus. Vestibulum nibh elit, cursus id
-          sodales ut, tincidunt quis lorem. Cras vitae iaculis urna.
+          <!-- RESPUESTA GENERADA IA -->
+          <div id="apiResponse" class="[&>p]:mb-2 [&>pre]:my-2 [&>ol]:list-decimal [&>ol]:ml-5 [&>ul]:list-disc [&>ul]:ml-5"></div>
         </p>
       </div>
     </div>
   </div>
+  <!-- MSG inicial -->
+  <div id="msg-inicial" class="h-full pt-8 flex flex-col justify-center items-center flex-auto gap-8">
+    <svg class="fill-neutral-100 max-h-40"xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--!Font Awesome Free 6.5.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2024 Fonticons, Inc.--><path d="M416 208c0 45.9-14.9 88.3-40 122.7L502.6 457.4c12.5 12.5 12.5 32.8 0 45.3s-32.8 12.5-45.3 0L330.7 376c-34.4 25.2-76.8 40-122.7 40C93.1 416 0 322.9 0 208S93.1 0 208 0S416 93.1 416 208zM208 352a144 144 0 1 0 0-288 144 144 0 1 0 0 288z"/></svg>
+    <p class="border-t-8 border-neutral-100 pt-6 text-neutral-200 text-3xl font-black font-mono max-w-sm text-center">Consulta información con la ia</p>
+  </div>
 </div>
+
+<!-- Contenido no visible para que mantengan el css de tailwind los elementos insertados desde el js -->
+<div class="code-block hidden"><pre class="theme-a11y-dark"><div class="flex bg-black text-neutral-400 justify-between py-2 px-5 rounded-t-md text-xs"><p>${lang}</p><a onclick="copyToClipboard(this)" class="flex gap-2 group"><svg class="fill-neutral-400 w-3 group-hover:fill-neutral-300 transition" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--!Font Awesome Free 6.5.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2024 Fonticons, Inc.--><path d="M208 0H332.1c12.7 0 24.9 5.1 33.9 14.1l67.9 67.9c9 9 14.1 21.2 14.1 33.9V336c0 26.5-21.5 48-48 48H208c-26.5 0-48-21.5-48-48V48c0-26.5 21.5-48 48-48zM48 128h80v64H64V448H256V416h64v48c0 26.5-21.5 48-48 48H48c-26.5 0-48-21.5-48-48V176c0-26.5 21.5-48 48-48z"/></svg><button class="group-hover:text-neutral-300 transition">Copy code</button></a></div><code class="hljs theme-a11y-dark">${result}</code></pre></div>
+
 {% endblock %}

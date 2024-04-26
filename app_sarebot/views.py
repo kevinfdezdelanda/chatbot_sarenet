@@ -16,7 +16,6 @@ def get_prompt_description(request):
     prompt_id = request.GET.get('prompt_id')
     if prompt_id:
         prompt = Prompt.objects.get(id=prompt_id)
-        print(prompt.descripcion)
         return JsonResponse({'description': prompt.descripcion})
     else:
         return JsonResponse({'description': ''})  
@@ -33,6 +32,7 @@ def get_prompt(request):
 def api_view(request):
     system = request.GET.get('system', '')
     user = request.GET.get('user', '')
+    print(f"Received prompt: {system}")
     def event_stream():
         complete_response = []
         stream = llamar_api(user, system)
@@ -50,7 +50,8 @@ def api_view(request):
                                 if 'delta' in choice and 'content' in choice['delta']:
                                     partial_response = choice['delta']['content']
                                     complete_response.append(partial_response)
-                                    yield f"data: {partial_response}\n\n"
+                                    json_data = json.dumps(choice['delta'])  # Serializa el delta a JSON
+                                    yield f"data: {json_data}\n\n"
                     except json.JSONDecodeError as e:
                         yield f"data: Error parsing JSON: {str(e)}\n\n"
         final_response = "".join(complete_response)
