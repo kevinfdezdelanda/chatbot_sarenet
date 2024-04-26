@@ -2,7 +2,7 @@ import json
 from django.shortcuts import render
 from django.http import HttpResponse, JsonResponse, StreamingHttpResponse
 import requests
-from .models import Prompt
+from .models import Prompt, Chat
 
 def chat(request):
     return render(request, 'app_sarebot/chat.html')
@@ -33,9 +33,8 @@ def api_view(request):
     system = request.GET.get('system', '')
     user = request.GET.get('user', '')
     print(f"Received prompt: {system}")
-    
     def event_stream():
-        contenido = ""
+        complete_response = []
         stream = llamar_api(user, system)
         for chunk in stream:
             if chunk:  # Asegura que el chunk no está vacío
@@ -49,15 +48,14 @@ def api_view(request):
                         if 'choices' in data:
                             for choice in data['choices']:
                                 if 'delta' in choice and 'content' in choice['delta']:
-                                    print(choice['delta'])
-                                    contenido += choice['delta']['content']
+                                    partial_response = choice['delta']['content']
+                                    complete_response.append(partial_response)
                                     json_data = json.dumps(choice['delta'])  # Serializa el delta a JSON
                                     yield f"data: {json_data}\n\n"
                     except json.JSONDecodeError as e:
                         yield f"data: Error parsing JSON: {str(e)}\n\n"
-        print(contenido)
-
-    
+        final_response = "".join(complete_response)
+        registrarLog(user, system, final_response)
     response = StreamingHttpResponse(event_stream(), content_type='text/event-stream')
     response['Cache-Control'] = 'no-cache'
     return response
@@ -83,3 +81,7 @@ def llamar_api(user, system):
         return response.iter_lines()
     else:
         return {'error': 'Request failed', 'status_code': response.status_code}
+    
+def registrarLog(user_prompt, system_prompt, response):
+    nuevo_registro = Chat(pregunta=user_prompt, respuesta=response, id_prompt=Prompt.objects.get(texto=system_prompt))
+    nuevo_registro.save()
