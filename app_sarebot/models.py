@@ -12,13 +12,14 @@ class Prompt(models.Model):
     def __str__(self) -> str:
         return f"{self.nombre}"
 
-class Chat(models.Model):
+class Registro(models.Model):
     id = models.BigAutoField(primary_key=True)
     pregunta = models.TextField()
     respuesta = models.TextField()
     valoracion = models.BooleanField(blank=True, null=True)
     comentario_val = models.CharField(blank=True, max_length=250, null=True)
     timestamp = models.DateTimeField(auto_now_add=True)
+    origen = models.CharField(max_length=20)
     prompt = models.ForeignKey(Prompt, on_delete=models.PROTECT)
     # id_conversacion = models.ForeignKey(Conversacion, on_delete=models.CASCADE)
     

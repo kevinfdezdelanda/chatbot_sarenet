@@ -2,7 +2,7 @@ import json
 from django.shortcuts import render
 from django.http import HttpResponse, JsonResponse, StreamingHttpResponse
 import requests
-from .models import Prompt, Chat
+from .models import Prompt, Registro
 
 def chat(request):
     return render(request, 'app_sarebot/chat.html')
@@ -33,6 +33,7 @@ def get_prompt(request):
 def api_view(request):
     system = request.GET.get('system', '')
     user = request.GET.get('user', '')
+    origen = request.GET.get('origen', '')
     def event_stream():
         complete_response = []
         stream = llamar_api(user, system)
@@ -54,7 +55,7 @@ def api_view(request):
                     except json.JSONDecodeError as e:
                         yield f"data: Error parsing JSON: {str(e)}\n\n"
         final_response = "".join(complete_response)
-        registrarLog(user, system, final_response)
+        registrarLog(user, system, final_response, origen)
     response = StreamingHttpResponse(event_stream(), content_type='text/event-stream')
     response['Cache-Control'] = 'no-cache'
     return response
@@ -81,6 +82,11 @@ def llamar_api(user, system):
     else:
         return {'error': 'Request failed', 'status_code': response.status_code}
     
-def registrarLog(user_prompt, system_prompt, response):
-    nuevo_registro = Chat(pregunta=user_prompt, respuesta=response, prompt=Prompt.objects.get(texto=system_prompt))
+def registrarLog(user_prompt, system_prompt, response, origen):
+    nuevo_registro = Registro(
+        pregunta=user_prompt,
+        respuesta=response,
+        prompt=Prompt.objects.get(texto=system_prompt),
+        origen=origen
+    )
     nuevo_registro.save()

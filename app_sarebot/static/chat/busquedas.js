@@ -46,7 +46,7 @@ async function llamar_api(input, select) {
     document.getElementById('apiResponse').innerHTML = ''; // Limpia contenido anterior
     msg = document.getElementById("msg-generando").style.display = "flex"
     document.getElementById('result').style.display = "block"
-    var url = `call-api/?system=${encodeURIComponent(prompt1)}&user=${encodeURIComponent(texto)}`;
+    var url = `call-api/?system=${encodeURIComponent(prompt1)}&user=${encodeURIComponent(texto)}&origen=${encodeURIComponent("Consulta")}`;
     var eventSource = new EventSource(url);
     eventSource.onmessage = function (event) {
       document.getElementById("msg-generando").style.display = "none"
