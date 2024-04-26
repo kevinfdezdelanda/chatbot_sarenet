@@ -16,7 +16,6 @@ def get_prompt_description(request):
     prompt_id = request.GET.get('prompt_id')
     if prompt_id:
         prompt = Prompt.objects.get(id=prompt_id)
-        print(prompt.descripcion)
         return JsonResponse({'description': prompt.descripcion})
     else:
         return JsonResponse({'description': ''})  
@@ -34,7 +33,9 @@ def api_view(request):
     system = request.GET.get('system', '')
     user = request.GET.get('user', '')
     print(f"Received prompt: {system}")
+    
     def event_stream():
+        contenido = ""
         stream = llamar_api(user, system)
         for chunk in stream:
             if chunk:  # Asegura que el chunk no está vacío
@@ -48,10 +49,15 @@ def api_view(request):
                         if 'choices' in data:
                             for choice in data['choices']:
                                 if 'delta' in choice and 'content' in choice['delta']:
-                                    yield f"data: {choice['delta']['content']}\n\n"
+                                    print(choice['delta'])
+                                    contenido += choice['delta']['content']
+                                    json_data = json.dumps(choice['delta'])  # Serializa el delta a JSON
+                                    yield f"data: {json_data}\n\n"
                     except json.JSONDecodeError as e:
                         yield f"data: Error parsing JSON: {str(e)}\n\n"
+        print(contenido)
 
+    
     response = StreamingHttpResponse(event_stream(), content_type='text/event-stream')
     response['Cache-Control'] = 'no-cache'
     return response
