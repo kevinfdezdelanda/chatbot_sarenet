@@ -42,7 +42,11 @@ module.exports = {
         // '../../**/*.py'
     ],
     theme: {
-        extend: {},
+        extend: {
+            minHeight: {
+                'screen2': 'calc(100vh - 6rem)', // Define 'h-screen-minus-24'
+              }, 
+        }
     },
     plugins: [
         /**
