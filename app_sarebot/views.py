@@ -39,20 +39,19 @@ def api_view(request):
         for chunk in stream:
             if chunk:  # Asegura que el chunk no está vacío
                 data_str = chunk.decode('utf-8').replace('data: ', '')
-                if data_str.strip() == '[DONE]':  # Chequea si es el mensaje de finalización
-                    break  # Rompe el ciclo para terminar el stream
-                else:
+                if data_str.strip() != '[DONE]':  # Chequea si es el mensaje de finalización
                     try:
                         data = json.loads(data_str)
                         if 'choices' in data:
                             for choice in data['choices']:
-                                if 'delta' in choice and 'content' in choice['delta']:
-                                    partial_response = choice['delta']['content']
-                                    complete_response.append(partial_response)
-                                    json_data = json.dumps(choice['delta'])  # Serializa el delta a JSON
-                                    yield f"data: {json_data}\n\n"
+                                partial_response = choice['delta']
+                                if 'delta' in choice and 'content' in partial_response:
+                                    complete_response.append(partial_response['content'])
+                                    yield f"data: {json.dumps(partial_response)}\n\n"
                     except json.JSONDecodeError as e:
                         yield f"data: Error parsing JSON: {str(e)}\n\n"
+                else:
+                    break  # Rompe el ciclo para terminar el stream
         final_response = "".join(complete_response)
         id_registro = registrarLog(user, system, final_response, origen)
         yield f"event: done\ndata: {id_registro}\n\n"  # Envía un evento personalizado llamado 'done'
