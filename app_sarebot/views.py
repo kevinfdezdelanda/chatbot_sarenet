@@ -7,6 +7,9 @@ from .models import Prompt, Chat
 def chat(request):
     return render(request, 'app_sarebot/chat.html')
 
+def imagenes(request):
+    return render(request, 'app_sarebot/imagenes.html')
+
 def busquedas(request):
     prompts = Prompt.objects.all()
     return render(request, 'app_sarebot/index.html', {'prompts': prompts})
