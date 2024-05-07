@@ -40,7 +40,6 @@ def api_view(request):
             if chunk:  # Asegura que el chunk no está vacío
                 data_str = chunk.decode('utf-8').replace('data: ', '')
                 if data_str.strip() == '[DONE]':  # Chequea si es el mensaje de finalización
-                    yield "event: done\ndata: \n\n"  # Envía un evento personalizado llamado 'done'
                     break  # Rompe el ciclo para terminar el stream
                 else:
                     try:
@@ -55,7 +54,8 @@ def api_view(request):
                     except json.JSONDecodeError as e:
                         yield f"data: Error parsing JSON: {str(e)}\n\n"
         final_response = "".join(complete_response)
-        registrarLog(user, system, final_response, origen)
+        id_registro = registrarLog(user, system, final_response, origen)
+        yield f"event: done\ndata: {id_registro}\n\n"  # Envía un evento personalizado llamado 'done'
     response = StreamingHttpResponse(event_stream(), content_type='text/event-stream')
     response['Cache-Control'] = 'no-cache'
     return response
@@ -69,7 +69,7 @@ def llamar_api(user, system):
             {"role": "system", "content": system},
             {"role": "user", "content": user}
         ],
-        "temperature": 0.7,
+        "temperature": 0.4,
         "max_tokens": -1,
         "stream": True  # Activar el streaming
     }
@@ -90,3 +90,24 @@ def registrarLog(user_prompt, system_prompt, response, origen):
         origen=origen
     )
     nuevo_registro.save()
+    return nuevo_registro.id
+    
+def registrarValoracion(request):
+    if request.method == 'POST':
+        data = json.loads(request.body)
+    
+        id_registro = data.get('registro')
+        valoracion = data.get('valoracion')
+        comentario = data.get('comentario')
+        
+        objeto_registro = Registro.objects.get(id=id_registro)
+        objeto_registro.valoracion = bool(int(valoracion))
+        if comentario.strip():
+            objeto_registro.comentario_val = comentario
+        objeto_registro.save()
+        
+        # Return a JsonResponse indicating success or any relevant data
+        return JsonResponse({'message': 'Valoración registrada correctamente'})
+
+    # Handle GET or other request methods
+    return JsonResponse({'error': 'Método no permitido'}, status=405)

@@ -1,3 +1,4 @@
+const csrftoken = "{{ csrf_token }}";
 window.onload = function () {
   // Recarga la descripcion del prompt
   select = document.getElementById('promptSelector');
@@ -118,8 +119,11 @@ async function llamar_api(input, select) {
     eventSource.addEventListener('done', function (event) {
       console.log('Stream done, closing connection');
       console.log('generated data:\n', contenidoGenerado);
+      document.getElementById('id-registro').value = event.data;
       eventSource.close(); // Cierra la conexión del lado del cliente
       disable_enable_elements(true);
+      var hiddenDiv = document.getElementById('ratingThumbs');
+      hiddenDiv.classList.toggle('hidden');
     });
 
     // Cuando da error el stream
@@ -153,4 +157,56 @@ function copyToClipboard(e) {
   }).catch(err => {
     console.error('Error al copiar texto: ', err);
   });
+}
+
+// Función para valorar la respuesta
+function rateResponse(valoracion) {
+  document.getElementById('rating').value = valoracion;
+  // Mostrar el área de comentario y el botón de enviar
+  document.getElementById('ratingComment').classList.toggle('hidden');
+  document.getElementById('ratingButton').classList.toggle('hidden');
+}
+
+// Función para enviar la valoración y comentario al servidor
+function submitRating() {
+  var id_registro = document.getElementById('id-registro').value;
+  var valoracion = document.getElementById('rating').value
+  var comentario = document.getElementById('comment').value;
+  var csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+  
+  // Configurar los datos que se enviarán al servidor
+  var data = {
+    registro: id_registro,
+    valoracion: valoracion,
+    comentario: comentario
+  };
+
+  // Configurar la solicitud AJAX usando Fetch
+  fetch('api/save-rating/', {
+      method: 'POST',
+      headers: {
+          'Content-Type': 'application/json',
+          'X-CSRFToken': csrftoken
+      },
+      body: JSON.stringify(data)
+  })
+  .then(function(response) {
+      if (!response.ok) {
+          throw new Error('Error al enviar la solicitud al servidor');
+      }
+      return response.json();
+  })
+  .then(function(data) {
+    // Manejar la respuesta del servidor si es necesario
+    console.log(data);
+  })
+  .catch(function(error) {
+      // Manejar errores si ocurren
+      console.error('Error al enviar la valoración y el comentario:', error);
+  });
+  document.getElementById('ratingThumbs').classList.toggle('hidden');
+  document.getElementById('ratingComment').classList.toggle('hidden');
+  document.getElementById('comment').value = '';
+  document.getElementById('ratingButton').classList.toggle('hidden');
 }
