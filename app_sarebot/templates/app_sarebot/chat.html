@@ -1,5 +1,9 @@
-{% extends 'base.html' %} {% load static tailwind_tags %} {% block content %}
-
+{% extends 'base.html' %} 
+{% load static tailwind_tags %} 
+{% block content %}
+{% block scripts %}
+<script type="text/javascript" src="{% static 'chat/script.js' %}"></script>
+{% endblock %}
 <div class="flex h-full flex-col min-h-screen pt-16 container mx-auto px-4">
   <!-- Div con los chats y la barra superior -->
   <div id="chatbox" class="flex-1 overflow-hidden h-full">
@@ -117,7 +121,7 @@
               placeholder="Message SareBot…"
               class="m-0 w-full resize-none border-0 bg-transparent focus:ring-0 focus-visible:ring-0 dark:bg-transparent py-[10px] pr-6 md:py-3.5 md:pr-6 max-h-[25dvh] max-h-52 pl-4 md:pl-4 placeholder-black/50"
               style="height: 52px; overflow-y: hidden"></textarea>
-            <button
+            <button type="button" id="send-button"
               class="absolute bottom-1.5 right-2 rounded-lg border border-black bg-black p-0.5 text-gray-500 transition-colors enabled:bg-white disabled:text-gray-400 disabled:opacity-10 md:bottom-3 md:right-3">
               <span class="">
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" class="text-gray-500">

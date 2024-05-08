@@ -8,4 +8,5 @@ urlpatterns = [
     path("api/get-prompt/", views.get_prompt, name="get-prompt"),
     path("api/save-rating/", views.registrarValoracion, name="save-rating"),
     path("call-api/", views.api_view, name="call-api"),
+    path("chat/chat-call/", views.chat_api_view, name="chat-call"),
 ]

@@ -21,3 +21,5 @@ typing_extensions==4.11.0
 requests==2.31.0
 mysqlclient==2.2.4
 python-dotenv==1.0.1
+django-admin-interface==0.28.6
+django-colorfield==0.11.0

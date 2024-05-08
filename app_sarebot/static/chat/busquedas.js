@@ -1,4 +1,5 @@
 const csrftoken = "{{ csrf_token }}";
+val_selec = -1 
 window.onload = function () {
   // Recarga la descripcion del prompt
   select = document.getElementById('promptSelector');
@@ -22,6 +23,25 @@ window.onload = function () {
     if (event.key === 'Enter' && !event.shiftKey) {
       event.preventDefault();
       llamar_api(input, select);
+    }
+  });
+
+  document.getElementById('val-positiva').addEventListener('click', function (event) {
+    rateResponse(1)
+  });
+
+  document.getElementById('val-negativa').addEventListener('click', function (event) {
+    rateResponse(0)
+  });
+
+  document.getElementById('sendButton').addEventListener('click', function (event) {
+    submitRating()
+  });
+
+  document.getElementById('comment').addEventListener('keypress', function (event) {
+    if (event.key === 'Enter' && !event.shiftKey) {
+      event.preventDefault();
+      submitRating()
     }
   });
 };
@@ -63,7 +83,7 @@ async function llamar_api(input, select) {
   prompt1 = await obtener_prompt(select);
   if (texto != '' && prompt1 != '') { // Si estan vacios no hago nada
     disable_enable_elements(false);
-
+    reset_val();
     document.getElementById('apiResponse').innerHTML = ''; // Limpia contenido anterior
     msgIa = document.getElementById('msg-generando').style.display = 'flex';
     document.getElementById('result').style.display = 'block';
@@ -122,8 +142,7 @@ async function llamar_api(input, select) {
       document.getElementById('id-registro').value = event.data;
       eventSource.close(); // Cierra la conexión del lado del cliente
       disable_enable_elements(true);
-      var hiddenDiv = document.getElementById('ratingThumbs');
-      hiddenDiv.classList.toggle('hidden');
+      mostrar_ocultar_val(true, null)
     });
 
     // Cuando da error el stream
@@ -163,8 +182,13 @@ function copyToClipboard(e) {
 function rateResponse(valoracion) {
   document.getElementById('rating').value = valoracion;
   // Mostrar el área de comentario y el botón de enviar
-  document.getElementById('ratingComment').classList.toggle('hidden');
-  document.getElementById('ratingButton').classList.toggle('hidden');
+  if (valoracion === val_selec){
+    val_selec = -1
+  }else{
+    val_selec = valoracion
+  }
+
+  mostrar_ocultar_comentario_val()
 }
 
 // Función para enviar la valoración y comentario al servidor
@@ -195,18 +219,92 @@ function submitRating() {
       if (!response.ok) {
           throw new Error('Error al enviar la solicitud al servidor');
       }
+
       return response.json();
   })
   .then(function(data) {
     // Manejar la respuesta del servidor si es necesario
     console.log(data);
+    mostrar_ocultar_val(false, true)
   })
   .catch(function(error) {
       // Manejar errores si ocurren
       console.error('Error al enviar la valoración y el comentario:', error);
+      
+      mostrar_ocultar_val(false, false)
   });
-  document.getElementById('ratingThumbs').classList.toggle('hidden');
-  document.getElementById('ratingComment').classList.toggle('hidden');
-  document.getElementById('comment').value = '';
-  document.getElementById('ratingButton').classList.toggle('hidden');
+}
+
+// Muestra o oculta el text area y el boton y actualiza los iconos de las valoraciones
+function mostrar_ocultar_comentario_val() {
+  if (val_selec != -1){
+    if(val_selec == 1){
+      cambiar_icono_val_1(true)
+      cambiar_icono_val_0(false)
+    }else{
+      cambiar_icono_val_0(true)
+      cambiar_icono_val_1(false)
+    }
+    document.getElementById("val-text-button").style.maxHeight = '500px';
+  }else{
+    cambiar_icono_val_0(false)
+    cambiar_icono_val_1(false)
+    document.getElementById("val-text-button").style.maxHeight = '0px';
+  }
+}
+
+// cambia el estado del icono del pulgar arriba
+function cambiar_icono_val_1(pulsado){
+  if(pulsado){
+    document.getElementById("val-positiva-0").classList.add("hidden");
+    document.getElementById("val-positiva-1").classList.remove("hidden");
+  }else{
+    document.getElementById("val-positiva-0").classList.remove("hidden");
+      document.getElementById("val-positiva-1").classList.add("hidden");
+  }
+}
+
+// cambia el estado del icono del pulgar abajo
+function cambiar_icono_val_0(pulsado){
+  if(pulsado){
+    document.getElementById("val-negativa-0").classList.add("hidden");
+    document.getElementById("val-negativa-1").classList.remove("hidden");
+  }else{
+    document.getElementById("val-negativa-0").classList.remove("hidden");
+    document.getElementById("val-negativa-1").classList.add("hidden");
+  }
+}
+
+// Muestra y oculta las valoraciones y mensajes de error y exito
+function mostrar_ocultar_val(mostrar, exito){
+  var ratingThumbs = document.getElementById('ratingThumbs');
+  if(mostrar){
+    ratingThumbs.classList.remove('hidden');
+    ratingThumbs.classList.add('flex');
+  }else if(exito == null){
+    ratingThumbs.classList.add('hidden');
+    ratingThumbs.classList.remove('flex');
+    document.getElementById('val_exitosa').classList.add("hidden");
+    document.getElementById('val_exitosa').classList.remove("flex");
+  }else if(exito){
+    ratingThumbs.classList.add('hidden');
+    ratingThumbs.classList.remove('flex');
+    document.getElementById('val_exitosa').classList.remove("hidden");
+    document.getElementById('val_exitosa').classList.add("flex");
+  }else{
+    ratingThumbs.classList.add('hidden');
+    ratingThumbs.classList.remove('flex');
+    document.getElementById('val_error').classList.remove("hidden");
+    document.getElementById('val_error').classList.add("flex");
+  }
+}
+
+// Resetea las valoraciones para el siguiente prompt
+function reset_val(){
+  document.getElementById('comment').value = "";
+  val_selec = -1;
+  document.getElementById("val-text-button").style.maxHeight = '0px';
+  cambiar_icono_val_1(false);
+  cambiar_icono_val_1(false);
+  mostrar_ocultar_val(false, null)
 }
