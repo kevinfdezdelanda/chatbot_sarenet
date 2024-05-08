@@ -43,6 +43,9 @@ module.exports = {
     ],
     theme: {
         extend: {
+            fontSize:{
+                'nav': '16px',
+            },
             minHeight: {
                 'screen2': 'calc(100vh - 6rem)', // Define 'h-screen-minus-24'
               }, 

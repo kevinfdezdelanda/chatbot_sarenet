@@ -43,6 +43,8 @@ TAILWIND_APP_NAME = 'theme'
 # Application definition
 
 INSTALLED_APPS = [
+    "admin_interface",
+    "colorfield",
     "app_sarebot.apps.AppSarebotConfig",
     "django.contrib.admin",
     "django.contrib.auth",

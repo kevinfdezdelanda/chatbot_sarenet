@@ -5,7 +5,7 @@
 <head>
 <title>{% block title %}{% endblock %}</title>
 {% tailwind_css %}
-<link rel="stylesheet" href="{% block stylesheet %}{% static "admin/css/base.css" %}{% endblock %}">
+<link rel="stylesheet" href="{% block stylesheet %}{% static "admin/css/base.css" %}{% endblock %}"/>
 {% block dark-mode-vars %}
   <link rel="stylesheet" href="{% static "admin/css/dark_mode.css" %}">
   <script src="{% static "admin/js/theme.js" %}" defer></script>
@@ -22,20 +22,21 @@
     <link rel="stylesheet" href="{% static "admin/css/responsive.css" %}">
     {% if LANGUAGE_BIDI %}<link rel="stylesheet" href="{% static "admin/css/responsive_rtl.css" %}">{% endif %}
 {% endblock %}
+
 {% block blockbots %}<meta name="robots" content="NONE,NOARCHIVE">{% endblock %}
 </head>
 
 <body class="{% if is_popup %}popup {% endif %}{% block bodyclass %}{% endblock %}"
   data-admin-utc-offset="{% now "Z" %}">
-{% include "nav.html" %}
+  {% include "nav.html" %}
 <a href="#content-start" class="skip-to-content-link">{% translate 'Skip to main content' %}</a>
 <!-- Container -->
-<div id="container">
-
+<div id="container" class="mt-14 ">
     {% if not is_popup %}
     <!-- Header -->
     {% block header %}
-      <header id="header">
+      <header id="header" >
+        
         <div id="branding">
         {% block branding %}{% endblock %}
         </div>
