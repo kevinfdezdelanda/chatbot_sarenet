@@ -23,13 +23,13 @@ class Chat(models.Model):
 
 class Registro(models.Model):
     id = models.BigAutoField(primary_key=True)
+    timestamp = models.DateTimeField(auto_now_add=True)
     pregunta = models.TextField()
+    prompt = models.ForeignKey(Prompt, on_delete=models.PROTECT)  
     respuesta = models.TextField()
     valoracion = models.BooleanField(blank=True, null=True, choices=[(True, 'Buena'), (False, 'Mala')])
     comentario_val = models.CharField(blank=True, max_length=250, null=True)
-    timestamp = models.DateTimeField(auto_now_add=True)
     origen = models.CharField(max_length=20)
-    prompt = models.ForeignKey(Prompt, on_delete=models.PROTECT)    
     chat = models.ForeignKey(Chat, on_delete=models.SET_NULL, null=True, blank=True, related_name='registros_chat')
     
     def __str__(self) -> str:
