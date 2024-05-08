@@ -1,4 +1,6 @@
 from django.db import models
+from django.contrib.contenttypes.fields import GenericForeignKey
+from django.contrib.contenttypes.models import ContentType
 
 # class Conversacion(models.Model):
 #     id = models.BigAutoField(primary_key=True)
@@ -11,6 +13,13 @@ class Prompt(models.Model):
     
     def __str__(self) -> str:
         return f"{self.nombre}"
+    
+class Chat(models.Model):
+    id = models.BigAutoField(primary_key=True)
+    titulo = models.CharField(max_length=40)
+    
+    def __str__(self) -> str:
+        return f"{self.id} - {self.titulo}"
 
 class Registro(models.Model):
     id = models.BigAutoField(primary_key=True)
@@ -20,8 +29,8 @@ class Registro(models.Model):
     comentario_val = models.CharField(blank=True, max_length=250, null=True)
     timestamp = models.DateTimeField(auto_now_add=True)
     origen = models.CharField(max_length=20)
-    prompt = models.ForeignKey(Prompt, on_delete=models.PROTECT)
-    # id_conversacion = models.ForeignKey(Conversacion, on_delete=models.CASCADE)
+    prompt = models.ForeignKey(Prompt, on_delete=models.PROTECT)    
+    chat = models.ForeignKey(Chat, on_delete=models.SET_NULL, null=True, blank=True, related_name='registros_chat')
     
     def __str__(self) -> str:
         return f"{self.pregunta}"
