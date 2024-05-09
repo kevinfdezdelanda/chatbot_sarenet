@@ -1,4 +1,4 @@
-const csrftoken = "{{ csrf_token }}";
+var csrftoken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
 val_selec = -1 
 window.onload = function () {
   // Recarga la descripcion del prompt
@@ -196,7 +196,6 @@ function submitRating() {
   var id_registro = document.getElementById('id-registro').value;
   var valoracion = document.getElementById('rating').value
   var comentario = document.getElementById('comment').value;
-  var csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
 
   
   // Configurar los datos que se enviarán al servidor
@@ -219,7 +218,6 @@ function submitRating() {
       if (!response.ok) {
           throw new Error('Error al enviar la solicitud al servidor');
       }
-
       return response.json();
   })
   .then(function(data) {
@@ -229,8 +227,7 @@ function submitRating() {
   })
   .catch(function(error) {
       // Manejar errores si ocurren
-      console.error('Error al enviar la valoración y el comentario:', error);
-      
+      console.error('Error al enviar la valoración y el comentario:', error);  
       mostrar_ocultar_val(false, false)
   });
 }

@@ -1,9 +1,10 @@
 {% extends 'base.html' %} 
-{% load static tailwind_tags %} 
+{% load static tailwind_tags %}
 {% block content %}
 {% block scripts %}
 <script type="text/javascript" src="{% static 'chat/script.js' %}"></script>
 {% endblock %}
+{{ csrf_token }}
 <div class="flex h-full flex-col min-h-screen pt-16 container mx-auto px-4">
   <!-- Div con los chats y la barra superior -->
   <div id="chatbox" class="flex-1 overflow-hidden h-full">

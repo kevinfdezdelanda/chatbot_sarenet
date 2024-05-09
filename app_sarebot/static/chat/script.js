@@ -1,3 +1,4 @@
+var csrftoken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
 function generarID() {
     // Inicializamos un contador que almacenará el último ID generado
     let contador = 0;
@@ -110,32 +111,72 @@ window.onload = function () {
         chatbox.append(messageDiv);
     }
 
+    function registrarChat() {
+        var data = {
+            titulo: "titulo"
+        };
+
+        return fetch('save-chat/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': csrftoken
+            },
+            body: JSON.stringify(data)
+        })
+        .then(function(response) {
+            if (!response.ok) {
+                throw new Error('Error al enviar la solicitud al servidor');
+            }
+            return response.json();
+        })
+        .then(function(data) {
+          // Manejar la respuesta del servidor si es necesario
+          console.log(data);
+          return data.id;
+        })
+        .catch(function(error) {
+            // Manejar errores si ocurren
+            console.error('Error al enviar la valoración y el comentario:', error);
+            return -1;
+        });
+    }
+
     // Agregar evento al botón de enviar
-    sendButton.addEventListener("click", function () {
+    sendButton.addEventListener("click", async function () {
         // Obtener el contenido del área de texto
         const userMessage = textArea.value;
         // Si el mensaje no está vacío
         if (userMessage.trim()) {
             // Agregar el mensaje al chatbox como "You"
             const idBot = idchat();
+            if (idBot == 1) {
+                try {
+                    chat_id = await registrarChat(); // Await the Promise from registrarChat()
+                    console.log("The chat ID is:", chat_id);
+                } catch (error) {
+                    console.error('Error with chat registration:', error);
+                    return; // Exit if the chat registration fails
+                }
+            }
             addMessageToChatbox(userMessage, "You");
             addMessageToChatboxIA(idBot);
 
             // Borrar el contenido del área de texto
             try {
-                const url = `chat-call/?userMessage=${encodeURIComponent(userMessage)}`;
+                const url = `chat-call/?user=${encodeURIComponent(userMessage)}&origen=${encodeURIComponent("Chat")}&chat=${encodeURIComponent(chat_id)}`;
                 const eventSource = new EventSource(url);
+
+
                 textArea.value = "";
                 eventSource.onmessage = function (event) {
                     try {
                         // Parse the JSON to extract the content
-                        const data = event.data;
-                        console.log("base",data)
-                        console.log("pulido",data.content)
+                        var data = JSON.parse(event.data)
                         // Check if the JSON contains the expected content
-                        if (data) {
+                        if (data.content) {
                             // Add the content to the appropriate div
-                            document.getElementById("bot" + idBot).innerHTML += data;
+                            document.getElementById("bot" + idBot).innerHTML += data.content;
                         }
                     } catch (error) {
                         console.error('Error parsing JSON:', error, "Raw Data:", event.data);
@@ -158,3 +199,32 @@ window.onload = function () {
         }
     });
 };
+
+function enviarValoracion(id_registro, valoracion, comentario) {
+    var data = {
+        id_registro: id_registro,
+        valoracion: valoracion,
+        comentario: comentario
+    };
+
+    fetch('save-rating/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': csrftoken  // Make sure csrftoken is defined or fetched from your environment
+        },
+        body: JSON.stringify(data)
+    })
+    .then(function(response) {
+        if (!response.ok) {
+            throw new Error('Error al enviar la solicitud al servidor');
+        }
+        return response.json();  // Assuming the server responds with JSON
+    })
+    .then(function(responseData) {
+        console.log('Respuesta del servidor:', responseData);
+    })
+    .catch(function(error) {
+        console.error('Error al enviar la valoración y el comentario:', error);
+    });
+}

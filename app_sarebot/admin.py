@@ -8,7 +8,7 @@ class AdminPrompt(admin.ModelAdmin):
 
 class AdminRegistro(admin.ModelAdmin):
     # Campos que se muestran en la lista de Chats
-    list_display = ["pregunta", "prompt", "respuesta", "timestamp", "valoracion"]
+    list_display = ["pregunta", "origen", "prompt", "respuesta", "timestamp", "valoracion"]
     
     # Campos por los que se puede filtrar
     list_filter = ["prompt", "valoracion", "timestamp"]
@@ -18,8 +18,8 @@ class AdminRegistro(admin.ModelAdmin):
     
     def get_fields(self, request, obj=None):
         fields = super().get_fields(request, obj)
-        if obj and obj.origen != 'Chat':
-            fields.remove('chat')
+        if obj:  # Verifica que es una instancia existente y no una creación nueva
+            fields = [field for field in fields if getattr(obj, field) is not None]
         return fields
     
     # Para que no se pueda editar ningún campo
@@ -46,6 +46,8 @@ class AdminChat(admin.ModelAdmin):
             )
         else:
             return 'No hay registros asociados'
+        
+    fields = ["id", "titulo", "registros_chat"]
         
     registros_chat.short_description = 'Historial'  # Define un nombre para el campo en la interfaz de administración
     
