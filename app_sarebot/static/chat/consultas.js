@@ -302,6 +302,6 @@ function reset_val(){
   val_selec = -1;
   document.getElementById("val-text-button").style.maxHeight = '0px';
   cambiar_icono_val_1(false);
-  cambiar_icono_val_1(false);
+  cambiar_icono_val_0(false);
   mostrar_ocultar_val(false, null)
 }
