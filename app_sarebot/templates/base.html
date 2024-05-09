@@ -14,7 +14,7 @@
     <script src="{% static 'librerias/highlight_js/js/go.min.js' %}"></script>
     <script src="{% static 'librerias/markdown_it/js/markdown-it.min.js' %}"></script>
   </head>
-  <body class="antialiased">
+  <body class="antialiased" id="body">
     {% include "nav.html" %}
     {% block content %}{% endblock %}
   </body>
