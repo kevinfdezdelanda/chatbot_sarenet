@@ -22,6 +22,32 @@ window.onload = function () {
 	const textArea = document.getElementById('prompt-textarea');
 	const chatbox = document.getElementById('chatbox');
 	const idchat = generarID();
+	// Obtener el listado de chats
+	try{
+		fetch('listar_chats')
+        .then(response => response.json())
+        .then(data => {
+            const chatListUl = document.getElementById('chat-list-ul');
+            data.forEach(chat => {
+				console.log("entra2	")
+                const li = document.createElement('li');
+                const a = document.createElement('a');
+                a.href = `#`;
+                a.textContent = `${chat.id} - ${chat.titulo}`;
+                a.dataset.chatId = chat.id;
+                a.addEventListener('click', function(event) {
+                    event.preventDefault();
+                    cargarChats(this.dataset.chatId);
+                });
+                li.appendChild(a);
+                chatListUl.appendChild(li);
+            });
+        })
+        .catch(error => console.error('Error fetching chat list:', error));
+	}catch (error) {
+		console.error('Error parsing JSON:', error, 'Raw Data:', event.data);
+	}
+
 	// Funcion para que cuando pulse la tecla "ENTER" envie el mensaje
 	textArea.addEventListener('keypress', (event) => {
 		if (event.key === 'Enter' && !event.shiftKey) {
@@ -238,6 +264,45 @@ function addMessageToChatbox(message, author) {
 	// Agregar el mensaje al principio del chatbox
 	chatbox.append(messageDiv);
 }
+// Función para agregar mensaje de la ia que esta guardado en el registro de la ia
+function addMessageToChatboxChatHistory(message) {
+	// Crear un nuevo div para el mensaje
+	const messageDiv = document.createElement('div');
+	messageDiv.className = 'flex w-full text-token-text-primary px-4 py-2 justify-center text-base';
+
+	// Estructura del mensaje
+	messageDiv.innerHTML = `
+	<div class="flex flex-1 text-base mx-auto gap-3 md:px-5 lg:px-1 xl:px-5 md:max-w-3xl lg:max-w-[50rem] xl:max-w-[64rem]">
+		<div class="flex-shrink-0 flex flex-col relative items-end">
+			<div class="pt-0.5">
+			<div class="gizmo-shadow-stroke flex h-6 w-6 items-center justify-center overflow-hidden rounded-full bg-white p-1">
+				<img
+				alt="SareBot"
+				referrerpolicy="no-referrer"
+				loading="lazy"
+				width="24"
+				height="24"
+				decoding="async"
+				data-nimg="1"
+				class="rounded-sm"
+				src="/static/chat/images/sarebot.png"
+				style="color: transparent" />
+			</div>
+			</div>
+		</div>
+		<div class="relative flex w-full flex-col">
+			<div class="font-semibold select-none">SareBot</div>
+			<div class="flex flex-grow flex-col max-w-full">
+			<div class="min-h-[20px] text-message flex flex-col items-start">
+				<div>${message}</div>
+			</div>
+			</div>
+		</div>
+	</div>
+`;
+	// Agregar el mensaje al principio del chatbox
+	chatbox.append(messageDiv);
+}
 
 // Función para agregar mensaje de la ia al chatbox
 function addMessageToChatboxIA(idBot) {
@@ -314,4 +379,26 @@ function registrarChat() {
 			console.error('Error al enviar la valoración y el comentario:', error);
 			return -1;
 		});
+}
+
+function cargarChats(chatId) {
+    const chatContainer = document.getElementById('chatbox');
+    fetch(`cargar_chats/?chat_id=${chatId}`)
+        .then(response => response.json())
+        .then(data => {
+            // Limpiar el contenedor antes de agregar nuevos chats
+            chatContainer.innerHTML = `
+                <div class="mb-1.5 flex items-center justify-between z-10 h-14 pb-2 font-semibold">
+                    <div class="flex items-center gap-2">
+                        <h1 class="text-4xl font-bold text-neutral-600">Chat</h1>
+                    </div>
+                </div>	
+            `;
+
+            data.forEach(registro => {
+                addMessageToChatbox(registro.pregunta,"You")
+                addMessageToChatboxChatHistory(registro.respuesta)
+            });
+        })
+        .catch(error => console.error('Error loading chats:', error));
 }

@@ -12,6 +12,11 @@ def busquedas(request):
     prompts = Prompt.objects.all()
     return render(request, 'app_sarebot/index.html', {'prompts': prompts})
 
+#Funcion para listar los chats
+def listar_chats(request):
+    chats = Chat.objects.all().order_by('-id').values('id', 'titulo')
+    return JsonResponse(list(chats), safe=False)
+
 # Funcion para actualizar la descripción de los prompts
 def get_prompt_description(request):
     prompt_id = request.GET.get('prompt_id')
@@ -151,3 +156,11 @@ def get_messages(system, chat: Chat, next_message):
         messages.append({"role": "assistant", "content": registro.respuesta})
     messages.append({"role": "user", "content": next_message})
     return messages
+
+def cargar_chats(request):
+    chat_id = request.GET.get('chat_id')
+    if chat_id:
+        registros = Registro.objects.filter(chat_id=chat_id).values('id', 'pregunta', 'respuesta')
+        print(registros)
+        return JsonResponse(list(registros), safe=False)
+    return JsonResponse({'error': 'No chat ID provided'}, status=400)
