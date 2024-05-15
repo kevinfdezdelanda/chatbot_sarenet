@@ -83,6 +83,12 @@ def api_view(request):
             origen=origen,
             chat=chat if origen == "Chat" else None
         )
+        
+        if origen == "Chat" and chat.titulo == "Chat sin título":
+            nuevo_titulo = obtenerTituloChat(user, final_response)
+            chat.titulo = nuevo_titulo
+            chat.save()
+        
         yield f"event: done\ndata: {id_registro}\n\n"  # Envía un evento personalizado llamado 'done'
     
     response = StreamingHttpResponse(event_stream(), content_type='text/event-stream')
@@ -161,6 +167,16 @@ def cargar_chats(request):
     chat_id = request.GET.get('chat_id')
     if chat_id:
         registros = Registro.objects.filter(chat_id=chat_id).values('id', 'pregunta', 'respuesta')
-        print(registros)
         return JsonResponse(list(registros), safe=False)
     return JsonResponse({'error': 'No chat ID provided'}, status=400)
+
+def obtenerTituloChat(pregunta, respuesta):
+    system = "En base a la pregunta y respuesta que se te da, genera un título que resuma en muy pocas palabras la interacción. El número máximo de caracteres posibles para el título son 40."
+    user = (
+        f"Pregunta: {pregunta}\n\n"
+        f"Respuesta: {respuesta}"
+    )
+    print(user)
+    respuesta_modelo = llamar_api(user, system)
+    print(respuesta_modelo)
+    return respuesta_modelo
