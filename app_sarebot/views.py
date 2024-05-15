@@ -83,13 +83,20 @@ def api_view(request):
             origen=origen,
             chat=chat if origen == "Chat" else None
         )
+        
+        if origen == "Chat" and chat.titulo == "Chat sin título":
+            nuevo_titulo = obtenerTituloChat(user, final_response)
+            chat.titulo = nuevo_titulo
+            chat.save()
+            yield f"event: title\ndata: {json.dumps({'chat_id': chat.id, 'titulo': nuevo_titulo})}\n\n"
+        
         yield f"event: done\ndata: {id_registro}\n\n"  # Envía un evento personalizado llamado 'done'
     
     response = StreamingHttpResponse(event_stream(), content_type='text/event-stream')
     response['Cache-Control'] = 'no-cache'
     return response
     
-def llamar_api(user, system, messages=None):
+def llamar_api(user, system, messages=None, stream=True):
     url = "http://172.26.215.178:1234/v1/chat/completions"
     headers = {'Content-Type': 'application/json'}
     if messages is None:
@@ -102,11 +109,14 @@ def llamar_api(user, system, messages=None):
         "messages": messages,
         "temperature": 0.4,
         "max_tokens": -1,
-        "stream": True  # Activar el streaming
+        "stream": stream  # Activar el streaming
     }
-    response = requests.post(url, json=data, headers=headers, stream=True)  # Añadir 'stream=True' a la solicitud
+    response = requests.post(url, json=data, headers=headers, stream=stream)  # Añadir 'stream=True' a la solicitud
     if response.status_code == 200:
-        return response.iter_lines()
+        if stream:
+            return response.iter_lines()
+        else:
+            return response.json()
     else:
         return {'error': 'Request failed', 'status_code': response.status_code}
     
@@ -144,7 +154,7 @@ def registrarNuevoChat(request):
             titulo=titulo
         )
         nuevo_chat.save()
-        return JsonResponse({'message': 'Chat registrado correctamente', 'id': nuevo_chat.id})
+        return JsonResponse({'message': 'Chat registrado correctamente', 'id': nuevo_chat.id, 'titulo': nuevo_chat.titulo})
     return JsonResponse({'error': 'Método no permitido'}, status=405)
 
 def get_messages(system, chat: Chat, next_message):
@@ -161,6 +171,17 @@ def cargar_chats(request):
     chat_id = request.GET.get('chat_id')
     if chat_id:
         registros = Registro.objects.filter(chat_id=chat_id).values('id', 'pregunta', 'respuesta')
-        print(registros)
         return JsonResponse(list(registros), safe=False)
     return JsonResponse({'error': 'No chat ID provided'}, status=400)
+
+def obtenerTituloChat(pregunta, respuesta):
+    system = "En base a la pregunta y respuesta que se te da, genera un título que resuma en muy pocas palabras la interacción. Responde directamente con el título, sin introducciones"
+    user = (
+        f"Pregunta: {pregunta}\n\n"
+        f"Respuesta: {respuesta}"
+    )
+    # Llamamos a la API sin usar stream
+    response = llamar_api(user, system, stream=False)
+    titulo = response.get('choices', [{}])[0].get('message', {}).get('content', 'Chat sin título')
+    print(titulo)
+    return titulo

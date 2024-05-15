@@ -25,28 +25,28 @@ window.onload = function () {
 	const idchat = generarID();
 
 	// Obtener el listado de chats
-	try{
+	try {
 		fetch('listar_chats')
-        .then(response => response.json())
-        .then(data => {
-            const chatListUl = document.getElementById('chat-list-ul');
-            data.forEach(chat => {
-				console.log("entra2	")
-                const li = document.createElement('li');
-                const a = document.createElement('a');
-                a.href = `#`;
-                a.textContent = `${chat.id} - ${chat.titulo}`;
-                a.dataset.chatId = chat.id;
-                a.addEventListener('click', function(event) {
-                    event.preventDefault();
-                    cargarChats(this.dataset.chatId);
-                });
-                li.appendChild(a);
-                chatListUl.appendChild(li);
-            });
-        })
-        .catch(error => console.error('Error fetching chat list:', error));
-	}catch (error) {
+			.then((response) => response.json())
+			.then((data) => {
+				const chatListUl = document.getElementById('chat-list-ul');
+				data.forEach((chat) => {
+					console.log('entra2	');
+					const li = document.createElement('li');
+					const a = document.createElement('a');
+					a.href = `#`;
+					a.textContent = `${chat.id} - ${chat.titulo}`;
+					a.dataset.chatId = chat.id;
+					a.addEventListener('click', function (event) {
+						event.preventDefault();
+						cargarChats(this.dataset.chatId);
+					});
+					li.appendChild(a);
+					chatListUl.appendChild(li);
+				});
+			})
+			.catch((error) => console.error('Error fetching chat list:', error));
+	} catch (error) {
 		console.error('Error parsing JSON:', error, 'Raw Data:', event.data);
 	}
 
@@ -148,6 +148,15 @@ window.onload = function () {
 					}
 				};
 
+				eventSource.addEventListener('title', (event) => {
+					try {
+						const data = JSON.parse(event.data);
+						actualizarTituloChat(data.chat_id, data.titulo);
+					} catch (error) {
+						console.error('Error parsing title JSON:', error, 'Raw Data:', event.data);
+					}
+				});
+
 				eventSource.addEventListener('done', function (event) {
 					console.log('Stream done, closing connection');
 					userScrolledUp = false;
@@ -211,15 +220,15 @@ function addMessageToChatbox(message, author) {
         </div>
         </div>
         <div class="relative flex w-full flex-col">
-            <div class="font-semibold select-none">${escapeHTML(author)}</div>
-            <div class="flex flex-grow flex-col max-w-full">
-                <div class="min-h-[20px] text-message flex flex-col items-start gap-3 whitespace-pre-wrap break-words">
-                    <div class="text-neutral-600">${escapeHTML(message)}</div>
-                </div>
-            </div>
-        </div>
-    </div>      
-    `;
+		<div class="font-semibold select-none">${escapeHTML(author)}</div>
+		<div class="flex flex-grow flex-col max-w-full">
+			<div class="min-h-[20px] text-message flex flex-col items-start gap-3 whitespace-pre-wrap break-words">
+				<div class="text-neutral-600">${escapeHTML(message)}</div>
+			</div>
+		</div>
+	</div>
+</div>      
+`;
 
 	// Agregar el mensaje al principio del chatbox
 	chatbox.append(messageDiv);
@@ -230,84 +239,6 @@ function escapeHTML(str) {
 	var div = document.createElement('div');
 	div.appendChild(document.createTextNode(str));
 	return div.innerHTML;
-}
-
-// Función para agregar mensaje de la ia al chatbox
-function addMessageToChatboxIA(idBot) {
-	// Crear un nuevo div para el mensaje
-	const messageDiv = document.createElement('div');
-	messageDiv.className = 'flex w-full text-token-text-primary px-4 py-2 justify-center text-base';
-
-	// Estructura del mensaje
-	messageDiv.innerHTML = `
-        <div id="msg${idBot}" class="flex flex-1 text-base mx-auto gap-3 md:px-5 lg:px-1 xl:px-5 md:max-w-3xl lg:max-w-[50rem] xl:max-w-[64rem]">
-            <div class="flex-shrink-0 flex flex-col relative items-end">
-                <div class="pt-0.5">
-                <div class="gizmo-shadow-stroke flex h-6 w-6 items-center justify-center overflow-hidden rounded-full bg-white p-1">
-                    <img
-                    alt="SareBot"
-                    referrerpolicy="no-referrer"
-                    loading="lazy"
-                    width="24"
-                    height="24"
-                    decoding="async"
-                    data-nimg="1"
-                    class="rounded-sm"
-                    src="/static/chat/images/sarebot.png"
-                    style="color: transparent" />
-                </div>
-                </div>
-            </div>
-            <div class="relative flex w-full flex-col">
-                <div class="font-semibold select-none">SareBot</div>
-                <div class="flex flex-grow flex-col max-w-full">
-                <div class="min-h-[20px] text-message flex flex-col items-start">
-                    <div id="bot${idBot}"></div>
-                </div>
-                </div>
-				<div id="val${idBot}"></div>
-            </div>
-        </div>
-    `;
-
-	// Agregar el mensaje al principio del chatbox
-	chatbox.append(messageDiv);
-
-	// Añado msg generando
-	document.getElementById(
-		`bot${idBot}`
-	).innerHTML = `<div id="msg-generando" class="flex items-center gap-2"><p class="text-blue-500 text-sm">Generando</p><img class="w-4" src="../static/chat/images/loading.gif" alt="cargando" /></div>`;
-}
-
-function registrarChat() {
-	var data = {
-		titulo: 'titulo',
-	};
-
-	return fetch('save-chat/', {
-		method: 'POST',
-		headers: {
-			'Content-Type': 'application/json',
-			'X-CSRFToken': csrftoken,
-		},
-		body: JSON.stringify(data),
-	})
-		.then(function (response) {
-			if (!response.ok) {
-				throw new Error('Error al enviar la solicitud al servidor');
-			}
-			return response.json();
-		})
-		.then(function (data) {
-			// Manejar la respuesta del servidor si es necesario
-			console.log(data);
-			return data.id;
-		})
-		.catch(function (error) {
-			// Manejar errores si ocurren
-			console.error('Error al enviar la valoración y el comentario:', error);
-			return -1;
-		});
 }
 
 // Inserta el codigo de la valoracion a la respuesta de la ia y le añade los eventos para controlar la valoracion
@@ -460,13 +391,89 @@ function addMessageToChatboxChatHistory(message) {
 	chatbox.append(messageDiv);
 }
 
+// Función para agregar mensaje de la ia al chatbox
+function addMessageToChatboxIA(idBot) {
+	// Crear un nuevo div para el mensaje
+	const messageDiv = document.createElement('div');
+	messageDiv.className = 'flex w-full text-token-text-primary px-4 py-2 justify-center text-base';
+
+	// Estructura del mensaje
+	messageDiv.innerHTML = `
+        <div id="msg${idBot}" class="flex flex-1 text-base mx-auto gap-3 md:px-5 lg:px-1 xl:px-5 md:max-w-3xl lg:max-w-[50rem] xl:max-w-[64rem]">
+            <div class="flex-shrink-0 flex flex-col relative items-end">
+                <div class="pt-0.5">
+                <div class="gizmo-shadow-stroke flex h-6 w-6 items-center justify-center overflow-hidden rounded-full bg-white p-1">
+                    <img
+                    alt="SareBot"
+                    referrerpolicy="no-referrer"
+                    loading="lazy"
+                    width="24"
+                    height="24"
+                    decoding="async"
+                    data-nimg="1"
+                    class="rounded-sm"
+                    src="/static/chat/images/sarebot.png"
+                    style="color: transparent" />
+                </div>
+                </div>
+            </div>
+            <div class="relative flex w-full flex-col">
+                <div class="font-semibold select-none">SareBot</div>
+                <div class="flex flex-grow flex-col max-w-full">
+                <div class="min-h-[20px] text-message flex flex-col items-start">
+                    <div id="bot${idBot}"></div>
+                </div>
+                </div>
+				<div id="val${idBot}"></div>
+            </div>
+        </div>
+    `;
+
+	// Agregar el mensaje al principio del chatbox
+	chatbox.append(messageDiv);
+
+	// Añado msg generando
+	document.getElementById(
+		`bot${idBot}`
+	).innerHTML = `<div id="msg-generando" class="flex items-center gap-2"><p class="text-blue-500 text-sm">Generando</p><img class="w-4" src="../static/chat/images/loading.gif" alt="cargando" /></div>`;
+}
+
+async function registrarChat() {
+	const data = {
+		titulo: 'Chat sin título',
+	};
+
+	try {
+		const response = await fetch('save-chat/', {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json',
+				'X-CSRFToken': csrftoken,
+			},
+			body: JSON.stringify(data),
+		});
+
+		if (!response.ok) {
+			throw new Error('Error al enviar la solicitud al servidor');
+		}
+
+		const responseData = await response.json();
+		console.log('Chat registrado:', responseData);
+		agregarChatALista(responseData.id, responseData.titulo); // Añadir chat con título provisional
+		return responseData.id;
+	} catch (error) {
+		console.error('Error al registrar el chat:', error);
+		return -1;
+	}
+}
+
 function cargarChats(chatId) {
-    const chatContainer = document.getElementById('chatbox');
-    fetch(`cargar_chats/?chat_id=${chatId}`)
-        .then(response => response.json())
-        .then(data => {
-            // Limpiar el contenedor antes de agregar nuevos chats
-            chatContainer.innerHTML = `
+	const chatContainer = document.getElementById('chatbox');
+	fetch(`cargar_chats/?chat_id=${chatId}`)
+		.then((response) => response.json())
+		.then((data) => {
+			// Limpiar el contenedor antes de agregar nuevos chats
+			chatContainer.innerHTML = `
                 <div class="mb-1.5 flex items-center justify-between z-10 h-14 pb-2 font-semibold">
                     <div class="flex items-center gap-2">
                         <h1 class="text-4xl font-bold text-neutral-600">Chat</h1>
@@ -474,10 +481,35 @@ function cargarChats(chatId) {
                 </div>	
             `;
 
-            data.forEach(registro => {
-                addMessageToChatbox(registro.pregunta,"You")
-                addMessageToChatboxChatHistory(registro.respuesta)
-            });
-        })
-        .catch(error => console.error('Error loading chats:', error));
+			data.forEach((registro) => {
+				addMessageToChatbox(registro.pregunta, 'You');
+				addMessageToChatboxChatHistory(registro.respuesta);
+			});
+		})
+		.catch((error) => console.error('Error loading chats:', error));
+}
+
+function agregarChatALista(chatId, titulo) {
+	const chatListUl = document.getElementById('chat-list-ul');
+	const li = document.createElement('li');
+	const a = document.createElement('a');
+	a.href = '#';
+	a.textContent = `${chatId} - ${titulo}`;
+	a.dataset.chatId = chatId;
+	a.addEventListener('click', function (event) {
+		event.preventDefault();
+		cargarChats(this.dataset.chatId);
+	});
+	li.appendChild(a);
+	// Insertar el nuevo chat al principio de la lista
+	chatListUl.insertBefore(li, chatListUl.firstChild);
+}
+
+function actualizarTituloChat(chatId, nuevoTitulo) {
+	const chatLinks = document.querySelectorAll('#chat-list-ul a');
+	chatLinks.forEach((link) => {
+		if (link.dataset.chatId == chatId) {
+			link.textContent = `${chatId} - ${nuevoTitulo}`;
+		}
+	});
 }
