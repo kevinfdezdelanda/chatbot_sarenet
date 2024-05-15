@@ -128,16 +128,25 @@ function mostrar_ocultar_comentario_val(val_text_button, val_positiva_0 = null, 
 		}
 		val_text_button.style.maxHeight = '500px';
 
-		var alturaTotalContenido = document.documentElement.scrollHeight;
-		var alturaVisible = window.innerHeight;
-		var posicionScrollActual = window.scrollY;
+		chatbox = document.getElementById("chatbox");
+		// si la petición viene de la página chat
+		if(chatbox){
+			var alturaTotalContenido = chatbox.scrollHeight;
+			var alturaVisible = chatbox.clientHeight;
+			var posicionScrollActual = chatbox.scrollTop;
+			/// si el scroll está abajo hace un scroll para ver el textarea completo
+			if (idBot != null && posicionScrollActual + alturaVisible >= alturaTotalContenido) {
+				chatbox = document.getElementById("chatbox");
 
-		// si la peticion viene de la pagina chat (idBot != null) y el scroll esta abajo hace un scroll para ver el textarea completo
-		if (idBot != null && posicionScrollActual + alturaVisible >= alturaTotalContenido) {
-			setTimeout(function () {
-				window.scrollBy({ top: 300, left: 0, behavior: 'smooth' });
-			}, 150);
+				var alturaTotalContenido = chatbox.scrollHeight;
+				var alturaVisible = chatbox.clientHeight;
+				var posicionScrollActual = chatbox.scrollTop;
+				setTimeout(function () {
+					chatbox.scrollBy({ top: 300, left: 0, behavior: 'smooth' });
+				}, 150);
+			}
 		}
+		
 	} else {
 		cambiar_icono_val_0(false, val_negativa_1, val_negativa_0);
 		cambiar_icono_val_1(false, val_positiva_0, val_positiva_1);

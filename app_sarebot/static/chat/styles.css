@@ -8,3 +8,20 @@ ol {
     padding-left: 1.5em !important; /* Este es el equivalente a `pl-5` en Tailwind */
 }
     
+/* scrollbar.css */
+::-webkit-scrollbar {
+    width: 4px; /* Ancho del scrollbar */
+}
+
+::-webkit-scrollbar-track {
+    background: transparent; /* Color del track (fondo) */
+}
+
+::-webkit-scrollbar-thumb {
+    background-color: #b4b4b4; /* Color del thumb (barra) */
+    border-radius: 15px; /* Redondear los bordes del thumb */
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #555; /* Color del thumb al pasar el mouse */
+}

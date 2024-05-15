@@ -59,8 +59,12 @@ module.exports = {
                 'screen2': 'calc(100vh - 6rem)', // Define 'h-screen-minus-24'
               }, 
             height: {
-                'screen2': 'calc(100vh - 6rem)', // Define 'h-screen-minus-24'
+                'screen2': 'calc(100vh - 6rem)', // Define 'h-screen-minus-24',
+                'screen-no-menu': 'calc(100vh - 57px)', // Define 'h-screen-minus-24'
             },
+            margin: {
+                'menu': '57px',
+            }
         }
     },
     plugins: [

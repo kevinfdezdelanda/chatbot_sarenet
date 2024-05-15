@@ -64,16 +64,17 @@ window.onload = function () {
 		aumentar_textarea(textArea);
 	});
 
-	window.addEventListener(
+	chatbox.addEventListener(
 		'scroll',
 		() => {
-			let currentScrollTop = window.scrollY;
-			let windowHeight = window.innerHeight; // La altura de la ventana de visualización
-			let totalHeight = document.documentElement.scrollHeight; // La altura total del contenido de la página
+			let currentScrollTop = chatbox.scrollTop;
+			let chatboxHeight = chatbox.clientHeight; // La altura del chatbox visible
+			let totalHeight = chatbox.scrollHeight; // La altura total del contenido del chatbox
+	
 			if (currentScrollTop < lastScrollTop) {
-				// El usuario está scrolleando hacia arriba
+				// El usuario está desplazándose hacia arriba
 				userScrolledUp = true;
-			} else if (currentScrollTop + windowHeight >= totalHeight) {
+			} else if (currentScrollTop + chatboxHeight >= totalHeight) {
 				userScrolledUp = false;
 			}
 			lastScrollTop = currentScrollTop; // Actualizar el último valor conocido del scroll
@@ -106,11 +107,8 @@ window.onload = function () {
 			setTimeout(function () {
 				addMessageToChatboxIA(idBot);
 				// cuando manda un msg scrolea abajo automaticamente
-				window.scroll(0, document.body.scrollHeight);
+				chatbox.scrollTop = chatbox.scrollHeight;
 			}, 300);
-
-			// cargo el conversor de markdown
-			const md = crear_conversor_markdown();
 
 			try {
 				const url = `chat-call/?user=${encodeURIComponent(userMessage)}&origen=${encodeURIComponent('Chat')}&chat=${encodeURIComponent(chat_id)}`;
@@ -121,11 +119,14 @@ window.onload = function () {
 				textArea.style.height = '44px';
 				contenidoGenerado = '';
 
+				// cargo el conversor de markdown
+				const md = crear_conversor_markdown();
+
 				primer_msg = true;
 				eventSource.onmessage = function (event) {
 					// Desplazar hacia abajo solo si el usuario no ha scrolleado hacia arriba
 					if (primer_msg || !userScrolledUp) {
-						window.scroll(0, document.body.scrollHeight);
+						chatbox.scrollTop = chatbox.scrollHeight;
 					}
 					primer_msg = false;
 
@@ -301,7 +302,7 @@ function insertar_val(idBot) {
 
 	// para situar el scroll abajo del todo cuando inserta la valoracion
 	if (!userScrolledUp) {
-		window.scroll(0, document.body.scrollHeight);
+		chatbox.scrollTop = chatbox.scrollHeight;
 	}
 
 	// añado al dic de las valoraciones seleccionadas la id de la respuesta con la val por defecto
@@ -473,17 +474,21 @@ function cargarChats(chatId) {
 		.then((response) => response.json())
 		.then((data) => {
 			// Limpiar el contenedor antes de agregar nuevos chats
-			chatContainer.innerHTML = `
-                <div class="mb-1.5 flex items-center justify-between z-10 h-14 pb-2 font-semibold">
-                    <div class="flex items-center gap-2">
-                        <h1 class="text-4xl font-bold text-neutral-600">Chat</h1>
-                    </div>
-                </div>	
-            `;
+			// chatContainer.innerHTML = `
+            //     <div class="mb-1.5 flex items-center justify-between z-10 h-14 pb-2 font-semibold">
+            //         <div class="flex items-center gap-2">
+            //             <h1 class="text-4xl font-bold text-neutral-600">Chat</h1>
+            //         </div>
+            //     </div>	
+            // `;
+			chatContainer.innerHTML = ""
+
+			// cargo el conversor de markdown
+			const md = crear_conversor_markdown();
 
 			data.forEach((registro) => {
 				addMessageToChatbox(registro.pregunta, 'You');
-				addMessageToChatboxChatHistory(registro.respuesta);
+				addMessageToChatboxChatHistory(md.render(registro.respuesta));
 			});
 		})
 		.catch((error) => console.error('Error loading chats:', error));
@@ -494,6 +499,7 @@ function agregarChatALista(chatId, titulo) {
 	const li = document.createElement('li');
 	const a = document.createElement('a');
 	a.href = '#';
+	// a.textContent = `${chatId} - ${titulo}`;
 	a.textContent = `${chatId} - ${titulo}`;
 	a.dataset.chatId = chatId;
 	a.addEventListener('click', function (event) {
