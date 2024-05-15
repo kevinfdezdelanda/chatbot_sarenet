@@ -161,6 +161,15 @@ window.onload = function () {
 					}
 				};
 
+				eventSource.addEventListener('title', (event) => {
+					try {
+						const data = JSON.parse(event.data);
+						actualizarTituloChat(data.chat_id, data.titulo);
+					} catch (error) {
+						console.error('Error parsing title JSON:', error, 'Raw Data:', event.data);
+					}
+				});
+
 				eventSource.addEventListener('done', function (event) {
 					console.log('Stream done, closing connection');
 					userScrolledUp = false;
@@ -350,36 +359,35 @@ function addMessageToChatboxIA(idBot) {
 	).innerHTML = `<div id="msg-generando" class="flex items-center gap-2"><p class="text-blue-500 text-sm">Generando</p><img class="w-4" src="../static/chat/images/loading.gif" alt="cargando" /></div>`;
 }
 
-function registrarChat() {
-	var data = {
-		titulo: 'titulo',
-	};
+async function registrarChat() {
+    const data = {
+        titulo: 'Chat sin título',
+    };
 
-	return fetch('save-chat/', {
-		method: 'POST',
-		headers: {
-			'Content-Type': 'application/json',
-			'X-CSRFToken': csrftoken,
-		},
-		body: JSON.stringify(data),
-	})
-		.then(function (response) {
-			if (!response.ok) {
-				throw new Error('Error al enviar la solicitud al servidor');
-			}
-			return response.json();
-		})
-		.then(function (data) {
-			// Manejar la respuesta del servidor si es necesario
-			console.log(data);
-			return data.id;
-		})
-		.catch(function (error) {
-			// Manejar errores si ocurren
-			console.error('Error al enviar la valoración y el comentario:', error);
-			return -1;
-		});
+    try {
+        const response = await fetch('save-chat/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': csrftoken,
+            },
+            body: JSON.stringify(data),
+        });
+
+        if (!response.ok) {
+            throw new Error('Error al enviar la solicitud al servidor');
+        }
+
+        const responseData = await response.json();
+        console.log('Chat registrado:', responseData);
+        agregarChatALista(responseData.id, responseData.titulo); // Añadir chat con título provisional
+        return responseData.id;
+    } catch (error) {
+        console.error('Error al registrar el chat:', error);
+        return -1;
+    }
 }
+
 
 function cargarChats(chatId) {
     const chatContainer = document.getElementById('chatbox');
@@ -401,4 +409,29 @@ function cargarChats(chatId) {
             });
         })
         .catch(error => console.error('Error loading chats:', error));
+}
+
+function agregarChatALista(chatId, titulo) {
+    const chatListUl = document.getElementById('chat-list-ul');
+    const li = document.createElement('li');
+    const a = document.createElement('a');
+    a.href = '#';
+    a.textContent = `${chatId} - ${titulo}`;
+    a.dataset.chatId = chatId;
+    a.addEventListener('click', function(event) {
+        event.preventDefault();
+        cargarChats(this.dataset.chatId);
+    });
+    li.appendChild(a);
+    // Insertar el nuevo chat al principio de la lista
+    chatListUl.insertBefore(li, chatListUl.firstChild);
+}
+
+function actualizarTituloChat(chatId, nuevoTitulo) {
+    const chatLinks = document.querySelectorAll('#chat-list-ul a');
+    chatLinks.forEach(link => {
+        if (link.dataset.chatId == chatId) {
+            link.textContent = `${chatId} - ${nuevoTitulo}`;
+        }
+    });
 }
