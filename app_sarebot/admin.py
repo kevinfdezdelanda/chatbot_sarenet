@@ -47,7 +47,7 @@ class AdminChat(admin.ModelAdmin):
         else:
             return 'No hay registros asociados'
         
-    fields = ["id", "titulo", "registros_chat"]
+    fields = ["id", "titulo", "registros_chat", "visible"]
         
     registros_chat.short_description = 'Historial'  # Define un nombre para el campo en la interfaz de administración
     
