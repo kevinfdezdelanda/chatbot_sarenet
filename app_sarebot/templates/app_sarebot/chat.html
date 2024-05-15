@@ -1,63 +1,68 @@
 {% extends 'base.html' %} {% load static tailwind_tags %} {% block content %} {% block scripts %}
-<script type="text/javascript" src="{% static 'chat/script.js' %}"></script>
-{% endblock %} {% comment %} {{ csrf_token }} {% endcomment %}
+<script type="text/javascript" src="{% static 'chat/chat.js' %}"></script>
+{% endblock %} {% comment %} {{ csrf_token }} {% endcomment %} {% comment %}
 <div class="flex h-full flex-col min-h-screen pt-24 container mx-auto px-4">
-    <div class="flex">
-        <!-- Chat List Container -->
-        <div id="chat-list" class="w-1/4 bg-gray-100 p-4">
-            <h2 class="text-2xl font-bold text-neutral-600">Chats</h2>
-            <ul id="chat-list-ul" class="list-disc list-inside mt-4"></ul>
-        </div>
-
-        <!-- Chat Box Container -->
-        <div id="chatbox" class="flex-1 flex flex-col overflow-hidden h-full mb-24">
-            <!-- Barra superior (Actualmente solo tiene el titulo) -->
-            <div class="mb-1.5 flex items-center justify-between z-10 h-14 pb-2 font-semibold">
-                <div class="flex items-center gap-2">
-                    <h1 class="text-4xl font-bold text-neutral-600">Chat</h1>
-                </div>
-            </div>
-            <!-- MSG INICIAL -->
-            <div id="msg-inicial" class="my-auto h-full pt-8 flex flex-col justify-center items-center flex-auto gap-8">
-                <svg class="fill-neutral-100 max-h-40" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
-                    <!--!Font Awesome Free 6.5.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2024 Fonticons, Inc.-->
-                    <path
-                        d="M160 368c26.5 0 48 21.5 48 48v16l72.5-54.4c8.3-6.2 18.4-9.6 28.8-9.6H448c8.8 0 16-7.2 16-16V64c0-8.8-7.2-16-16-16H64c-8.8 0-16 7.2-16 16V352c0 8.8 7.2 16 16 16h96zm48 124l-.2 .2-5.1 3.8-17.1 12.8c-4.8 3.6-11.3 4.2-16.8 1.5s-8.8-8.2-8.8-14.3V474.7v-6.4V468v-4V416H112 64c-35.3 0-64-28.7-64-64V64C0 28.7 28.7 0 64 0H448c35.3 0 64 28.7 64 64V352c0 35.3-28.7 64-64 64H309.3L208 492z" />
-                </svg>
-
-                <p class="border-t-8 border-neutral-100 pt-6 text-neutral-200 text-3xl font-black font-mono max-w-sm text-center">Inicia una conversación con la ia</p>
-            </div>
-        </div>
-    </div>
-
-    <!-- div con el textarea y el boton -->
-    <div class="w-full fixed bottom-0 left-0 bg-white">
-        <form class="stretch mx-2 flex flex-row gap-3 mb-4 mt-4 lg:mx-auto lg:max-w-2xl xl:max-w-3xl border-gray-500">
-            <div class="relative flex h-full flex-1 flex-col">
-                <div class="flex w-full items-center">
-                    <div class="w-full max-w-3xl mx-auto flex gap-2">
-                        <textarea
-                            id="prompt-textarea"
-                            class="bg-gray-50 border min-h-11 h-11 max-h-96 resize-y border-gray-300 text-gray-900 text-sm rounded focus:ring-neutral-400 focus:border-neutral-400 block w-full p-2.5 disabled:opacity-65"
-                            placeholder="Escribe un mensaje..."></textarea>
-                        <div>
-                            <button
-                                id="send-button"
-                                type="button"
-                                class="rounded-lg border border-gray-300 bg-neutral-100 p-0.5 text-red-600 transition enabled:hover:bg-white enabled:hover:shadow-lg w-11 h-11 flex items-center disabled:opacity-65">
-                                <span class="m-auto">
-                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" class="w-3.5 fill-red-600">
-                                        <!--!Font Awesome Free 6.5.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2024 Fonticons, Inc.-->
-                                        <path
-                                            d="M307 34.8c-11.5 5.1-19 16.6-19 29.2v64H176C78.8 128 0 206.8 0 304C0 417.3 81.5 467.9 100.2 478.1c2.5 1.4 5.3 1.9 8.1 1.9c10.9 0 19.7-8.9 19.7-19.7c0-7.5-4.3-14.4-9.8-19.5C108.8 431.9 96 414.4 96 384c0-53 43-96 96-96h96v64c0 12.6 7.4 24.1 19 29.2s25 3 34.4-5.4l160-144c6.7-6.1 10.6-14.7 10.6-23.8s-3.8-17.7-10.6-23.8l-160-144c-9.4-8.5-22.9-10.6-34.4-5.4z" />
-                                    </svg>
-                                </span>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </form>
-    </div>
+	{% endcomment %}
+	<div class="flex h-full flex-col">
+		<div class="flex">
+			<!-- Chat List Container -->
+			<div id="chat-list" class="w-1/12 min-w-64 bg-neutral-100 p-4 relative pt-24 h-screen overflow-y-scroll">
+				<h2 class="text-2xl font-bold text-neutral-600">Chats</h2>
+				<ul id="chat-list-ul" class="!list-none list-inside mt-4"></ul>
+			</div>
+			<!-- Div con los chats y la barra superior -->
+			<div class="flex-1 flex flex-col overflow-hidden h-screen relative">
+				<div class="flex-1 h-full">
+					<div id="chatbox" class="flex flex-col overflow-y-scroll h-full py-24 px-28">
+						<!-- Barra superior (Actualmente solo tiene el titulo) -->
+						{% comment %} <div class="mb-1.5 flex items-center justify-between h-14 pb-2 font-semibold">
+							<div class="flex items-center gap-2">
+								<h1 class="text-4xl font-bold text-neutral-600">Chat</h1>
+							</div>
+						</div> {% endcomment %}
+						<!-- MSG INICIAL -->
+						<div id="msg-inicial" class="my-auto h-full pt-8 flex flex-col justify-center items-center flex-auto gap-8">
+							<svg class="fill-neutral-100 max-h-40" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+								<!--!Font Awesome Free 6.5.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2024 Fonticons, Inc.-->
+								<path
+									d="M160 368c26.5 0 48 21.5 48 48v16l72.5-54.4c8.3-6.2 18.4-9.6 28.8-9.6H448c8.8 0 16-7.2 16-16V64c0-8.8-7.2-16-16-16H64c-8.8 0-16 7.2-16 16V352c0 8.8 7.2 16 16 16h96zm48 124l-.2 .2-5.1 3.8-17.1 12.8c-4.8 3.6-11.3 4.2-16.8 1.5s-8.8-8.2-8.8-14.3V474.7v-6.4V468v-4V416H112 64c-35.3 0-64-28.7-64-64V64C0 28.7 28.7 0 64 0H448c35.3 0 64 28.7 64 64V352c0 35.3-28.7 64-64 64H309.3L208 492z" />
+							</svg>
+							<p class="border-t-8 border-neutral-100 pt-6 text-neutral-200 text-3xl font-black font-mono max-w-sm text-center">Inicia una conversación con la ia</p>
+						</div>
+					</div>
+					{% csrf_token %}
+				</div>
+				<!-- div con el textarea y el boton -->
+				<div class="w-full absolute bottom-0 bg-white z-50 left-0 right-0">
+					<form class="stretch mx-2 flex flex-row gap-3 mb-4 mt-4 lg:mx-auto lg:max-w-2xl xl:max-w-3xl border-gray-500">
+						<div class="relative flex h-full flex-1 flex-col">
+							<div class="flex w-full items-center">
+								<div class="w-full max-w-3xl mx-auto flex gap-2">
+									<textarea
+										id="prompt-textarea"
+										class="bg-gray-50 border min-h-11 h-11 max-h-96 resize-y border-gray-300 text-gray-900 text-sm rounded focus:ring-neutral-400 focus:border-neutral-400 block w-full p-2.5 disabled:opacity-65"
+										placeholder="Escribe un mensaje..."></textarea>
+									<div>
+										<button
+											id="send-button"
+											type="button"
+											class="rounded-lg border border-gray-300 bg-neutral-100 p-0.5 text-red-600 transition enabled:hover:bg-white enabled:hover:shadow-lg w-11 h-11 flex items-center disabled:opacity-65">
+											<span class="m-auto">
+												<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" class="w-3.5 fill-red-600">
+													<!--!Font Awesome Free 6.5.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2024 Fonticons, Inc.-->
+													<path
+														d="M307 34.8c-11.5 5.1-19 16.6-19 29.2v64H176C78.8 128 0 206.8 0 304C0 417.3 81.5 467.9 100.2 478.1c2.5 1.4 5.3 1.9 8.1 1.9c10.9 0 19.7-8.9 19.7-19.7c0-7.5-4.3-14.4-9.8-19.5C108.8 431.9 96 414.4 96 384c0-53 43-96 96-96h96v64c0 12.6 7.4 24.1 19 29.2s25 3 34.4-5.4l160-144c6.7-6.1 10.6-14.7 10.6-23.8s-3.8-17.7-10.6-23.8l-160-144c-9.4-8.5-22.9-10.6-34.4-5.4z" />
+												</svg>
+											</span>
+										</button>
+									</div>
+								</div>
+							</div>
+						</div>
+					</form>
+				</div>
+			</div>
+		</div>
+		{% endblock %}
+	</div>
 </div>
-{% endblock %}

@@ -1,0 +1,10 @@
+ul {
+    list-style-type: disc !important; /* o 'decimal' para `<ol>` si prefieres */
+    padding-left: 1.25rem !important; /* Este es el equivalente a `pl-5` en Tailwind */
+}
+
+ol {
+    list-style-type: decimal !important; /* o 'decimal' para `<ol>` si prefieres */
+    padding-left: 1.5em !important; /* Este es el equivalente a `pl-5` en Tailwind */
+}
+    
