@@ -31,7 +31,6 @@ window.onload = function () {
 			.then((data) => {
 				const chatListUl = document.getElementById('chat-list-ul');
 				data.forEach((chat) => {
-					console.log('entra2	');
 					const li = document.createElement('li');
 					const a = document.createElement('a');
 					a.href = `#`;
