@@ -42,6 +42,9 @@ window.onload = function () {
 						cargarChats(this.dataset.chatId);
 					});
 					li.appendChild(a);
+
+					botonBorrado(li, chat.id);
+
 					chatListUl.appendChild(li);
 				});
 			})
@@ -507,6 +510,9 @@ function agregarChatALista(chatId, titulo) {
 		cargarChats(this.dataset.chatId);
 	});
 	li.appendChild(a);
+
+	botonBorrado(li, chatId)
+
 	// Insertar el nuevo chat al principio de la lista
 	chatListUl.insertBefore(li, chatListUl.firstChild);
 }
@@ -518,4 +524,45 @@ function actualizarTituloChat(chatId, nuevoTitulo) {
 			link.textContent = `${chatId} - ${nuevoTitulo}`;
 		}
 	});
+}
+
+function botonBorrado(li, chatId) {
+	const deleteIcon = document.createElement('span');
+	deleteIcon.innerHTML = '🗑️'; 
+	deleteIcon.className = 'ml-2 text-red-500 cursor-pointer hover:text-red-700';
+	deleteIcon.dataset.chatId = chatId;
+	deleteIcon.addEventListener('click', function (event) {
+		event.stopPropagation();
+		eliminarChat(this.dataset.chatId, li);
+	});
+	li.appendChild(deleteIcon);
+}
+
+function eliminarChat(chatId, chatElement) {
+	const chatName = chatElement.querySelector('a').textContent;
+    const confirmDelete = confirm(`¿Estás seguro de que deseas eliminar el chat "${chatName}"?`);
+	if (confirmDelete) {
+		fetch('ocultar-chat/', {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json',
+				'X-CSRFToken': csrftoken, // Asegúrate de que csrftoken esté definido
+			},
+			body: JSON.stringify({ chat_id: chatId }),
+		})
+		.then((response) => {
+			if (!response.ok) {
+				throw new Error('Error al eliminar el chat');
+			}
+			return response.json();
+		})
+		.then((data) => {
+			if (data.success) {
+				chatElement.remove();
+			} else {
+				alert('Error al eliminar el chat');
+			}
+		})
+		.catch((error) => console.error('Error deleting chat:', error));
+	}
 }

@@ -14,7 +14,7 @@ def busquedas(request):
 
 #Funcion para listar los chats
 def listar_chats(request):
-    chats = Chat.objects.all().order_by('-id').values('id', 'titulo')
+    chats = Chat.objects.filter(visible=True).order_by('-id').values('id', 'titulo')
     return JsonResponse(list(chats), safe=False)
 
 # Funcion para actualizar la descripción de los prompts
@@ -185,3 +185,18 @@ def obtenerTituloChat(pregunta, respuesta):
     titulo = response.get('choices', [{}])[0].get('message', {}).get('content', 'Chat sin título')
     print(titulo)
     return titulo
+
+def ocultarChat(request):
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            chat_id = data.get('chat_id')
+            chat = Chat.objects.get(id=chat_id)
+            chat.visible = False
+            chat.save()
+            return JsonResponse({'success': True})
+        except Chat.DoesNotExist:
+            return JsonResponse({'success': False, 'error': 'Chat not found'}, status=404)
+        except Exception as e:
+            return JsonResponse({'success': False, 'error': str(e)}, status=500)
+    return JsonResponse({'success': False, 'error': 'Invalid request method'}, status=400)
