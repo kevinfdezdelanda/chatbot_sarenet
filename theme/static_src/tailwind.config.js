@@ -58,6 +58,9 @@ module.exports = {
             minHeight: {
                 'screen2': 'calc(100vh - 6rem)', // Define 'h-screen-minus-24'
               }, 
+            height: {
+                'screen2': 'calc(100vh - 6rem)', // Define 'h-screen-minus-24'
+            },
         }
     },
     plugins: [
