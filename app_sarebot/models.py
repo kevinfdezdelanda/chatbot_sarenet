@@ -12,7 +12,8 @@ class Prompt(models.Model):
     
 class Chat(models.Model):
     id = models.BigAutoField(primary_key=True)
-    titulo = models.CharField(max_length=40, blank=True, null=True)
+    titulo = models.CharField(max_length=100, blank=True, null=True)
+    visible = models.BooleanField(default=True)
     
     def __str__(self) -> str:
         return f"{self.id} - {self.titulo}"

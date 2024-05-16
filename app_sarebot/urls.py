@@ -10,5 +10,8 @@ urlpatterns = [
     path("chat/save-chat/", views.registrarNuevoChat, name="save-chat"),
     path("chat/save-rating/", views.registrarValoracion, name="save-chat-rating"),
     path("chat/chat-call/", views.api_view, name="chat-call"),
-    path("call-api/", views.api_view, name="call-api")
+    path("call-api/", views.api_view, name="call-api"),
+    path('chat/listar_chats/', views.listar_chats, name='listar_chats'),
+    path('chat/cargar_chats/', views.cargar_chats, name='cargar_chats'),
+    path('chat/ocultar-chat/', views.ocultarChat, name='ocultar-chat'),
 ]
