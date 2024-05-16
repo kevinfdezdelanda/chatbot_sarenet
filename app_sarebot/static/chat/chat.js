@@ -561,7 +561,7 @@ function cerrarBorrarChat() {
 // borra el chat
 function aceptarBorrarChat() {
 	chatHtml = document.getElementById(`chat${chatIdSelect}`);
-	crearChatBoton = document.getElementById('boton-nuevo-chat')
+	crearChatBoton = document.getElementById('boton-nuevo-chat');
 	fetch('ocultar-chat/', {
 		method: 'POST',
 		headers: {
@@ -578,10 +578,9 @@ function aceptarBorrarChat() {
 		})
 		.then((data) => {
 			if (data.success) {
-				
 				//si es el chat actual recarga la pagina
 				if (chatHtml.classList.contains('bg-neutral-200')) {
-					crearChatBoton.click()
+					crearChatBoton.click();
 				} else {
 					cargarHistorialChats();
 					cerrarBorrarChat();
@@ -592,4 +591,3 @@ function aceptarBorrarChat() {
 		})
 		.catch((error) => console.error('Error deleting chat:', error));
 }
-
