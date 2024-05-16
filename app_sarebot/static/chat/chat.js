@@ -2,6 +2,7 @@ var csrftoken = document.querySelector('meta[name="csrf-token"]').getAttribute('
 var userScrolledUp = false;
 var lastScrollTop = 0;
 var dic_val_select = {};
+var chatIdSelect = null;
 
 function generarID() {
 	// Inicializamos un contador que almacenará el último ID generado
@@ -25,32 +26,23 @@ window.onload = function () {
 	const idchat = generarID();
 
 	// Obtener el listado de chats
-	try {
-		fetch('listar_chats')
-			.then((response) => response.json())
-			.then((data) => {
-				const chatListUl = document.getElementById('chat-list-ul');
-				data.forEach((chat) => {
-					const li = document.createElement('li');
-					const a = document.createElement('a');
-					a.href = `#`;
-					a.textContent = `${chat.id} - ${chat.titulo}`;
-					a.dataset.chatId = chat.id;
-					a.addEventListener('click', function (event) {
-						event.preventDefault();
-						cargarChats(this.dataset.chatId);
-					});
-					li.appendChild(a);
+	cargarHistorialChats();
 
-					botonBorrado(li, chat.id);
+	//Botones popup
+	document.getElementById('pop-up-cancelar').addEventListener('click', (event) => {
+		event.preventDefault();
+		cerrarBorrarChat();
+	});
 
-					chatListUl.appendChild(li);
-				});
-			})
-			.catch((error) => console.error('Error fetching chat list:', error));
-	} catch (error) {
-		console.error('Error parsing JSON:', error, 'Raw Data:', event.data);
-	}
+	document.getElementById('pop-up-fondo').addEventListener('click', (event) => {
+		event.preventDefault();
+		cerrarBorrarChat();
+	});
+
+	document.getElementById('pop-up-aceptar').addEventListener('click', (event) => {
+		event.preventDefault();
+		aceptarBorrarChat();
+	});
 
 	// Funcion para que cuando pulse la tecla "ENTER" envie el mensaje
 	textArea.addEventListener('keypress', (event) => {
@@ -72,7 +64,7 @@ window.onload = function () {
 			let currentScrollTop = chatbox.scrollTop;
 			let chatboxHeight = chatbox.clientHeight; // La altura del chatbox visible
 			let totalHeight = chatbox.scrollHeight; // La altura total del contenido del chatbox
-	
+
 			if (currentScrollTop < lastScrollTop) {
 				// El usuario está desplazándose hacia arriba
 				userScrolledUp = true;
@@ -154,13 +146,13 @@ window.onload = function () {
 				eventSource.addEventListener('title', (event) => {
 					try {
 						const data = JSON.parse(event.data);
-						actualizarTituloChat(data.chat_id, data.titulo);
+						cargarHistorialChats();
 					} catch (error) {
 						console.error('Error parsing title JSON:', error, 'Raw Data:', event.data);
 					}
 				});
 
-				eventSource.addEventListener('done', function (event) {
+				eventSource.addEventListener('done', async function (event) {
 					console.log('Stream done, closing connection');
 					userScrolledUp = false;
 					disable_enable_elements(true);
@@ -181,6 +173,62 @@ window.onload = function () {
 		}
 	});
 };
+
+// Carga el historial de chats
+async function cargarHistorialChats() {
+	try {
+		fetch('listar_chats')
+			.then((response) => response.json())
+			.then((data) => {
+				const chatListUl = document.getElementById('chat-list-ul');
+				chatListUl.innerHTML = '';
+				data.forEach((chat) => {
+					// Crea un nuevo elemento li y a
+					const li = document.createElement('li');
+					li.className = 'relative whitespace-nowrap overflow-hidden truncate group flex';
+					const a = document.createElement('a');
+					if (chat.id == chatIdSelect) {
+						a.className = 'py-2 w-full bg-neutral-200 truncate';
+					} else {
+						a.className = 'py-2 w-full truncate';
+					}
+
+					a.href = '#';
+					a.id = `chat${chat.id}`;
+
+					// Añade el texto y los event listeners
+					a.textContent = chat.titulo;
+					a.addEventListener('click', function (event) {
+						event.preventDefault();
+						cargarChats(chat.id);
+					});
+
+					// Crea el div y el svg dentro de a
+					const div = document.createElement('div');
+					div.className = 'hidden group-hover:block absolute right-0 top-1/4 bg-neutral-200 px-3 py-0.5';
+					const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+					svg.setAttribute('viewBox', '0 0 448 512');
+					svg.classList.add('w-4', 'fill-neutral-600', 'hover:fill-red-700');
+					svg.innerHTML = `<path d="M135.2 17.7L128 32H32C14.3 32 0 46.3 0 64S14.3 96 32 96H416c17.7 0 32-14.3 32-32s-14.3-32-32-32H320l-7.2-14.3C307.4 6.8 296.3 0 284.2 0H163.8c-12.1 0-23.2 6.8-28.6 17.7zM416 128H32L53.2 467c1.6 25.3 22.6 45 47.9 45H346.9c25.3 0 46.3-19.7 47.9-45L416 128z"/>`;
+
+					div.appendChild(svg);
+					a.appendChild(div);
+					li.appendChild(a);
+
+					// Añadir el evento de eliminar
+					svg.addEventListener('click', function (event) {
+						event.stopPropagation(); // Detiene la propagación para no disparar el evento de click del enlace a
+						eliminarChat(chat.id, li);
+					});
+
+					chatListUl.appendChild(li);
+				});
+			})
+			.catch((error) => console.error('Error fetching chat list:', error));
+	} catch (error) {
+		console.error('Error parsing JSON:', error, 'Raw Data:', event.data);
+	}
+}
 
 // Habilita y deshabilita los campos para no poder hacer otra consulta mientas hay una en marcha
 function disable_enable_elements(enable) {
@@ -462,7 +510,9 @@ async function registrarChat() {
 
 		const responseData = await response.json();
 		console.log('Chat registrado:', responseData);
-		agregarChatALista(responseData.id, responseData.titulo); // Añadir chat con título provisional
+		// agregarChatALista(responseData.id, responseData.titulo); // Añadir chat con título provisional
+		chatIdSelect = responseData.id;
+		cargarHistorialChats();
 		return responseData.id;
 	} catch (error) {
 		console.error('Error al registrar el chat:', error);
@@ -475,15 +525,7 @@ function cargarChats(chatId) {
 	fetch(`cargar_chats/?chat_id=${chatId}`)
 		.then((response) => response.json())
 		.then((data) => {
-			// Limpiar el contenedor antes de agregar nuevos chats
-			// chatContainer.innerHTML = `
-            //     <div class="mb-1.5 flex items-center justify-between z-10 h-14 pb-2 font-semibold">
-            //         <div class="flex items-center gap-2">
-            //             <h1 class="text-4xl font-bold text-neutral-600">Chat</h1>
-            //         </div>
-            //     </div>	
-            // `;
-			chatContainer.innerHTML = ""
+			chatContainer.innerHTML = '';
 
 			// cargo el conversor de markdown
 			const md = crear_conversor_markdown();
@@ -492,63 +534,42 @@ function cargarChats(chatId) {
 				addMessageToChatbox(registro.pregunta, 'You');
 				addMessageToChatboxChatHistory(md.render(registro.respuesta));
 			});
+
+			chatIdSelect = chatId;
+			cargarHistorialChats();
 		})
 		.catch((error) => console.error('Error loading chats:', error));
 }
 
-function agregarChatALista(chatId, titulo) {
-	const chatListUl = document.getElementById('chat-list-ul');
-	const li = document.createElement('li');
-	const a = document.createElement('a');
-	a.href = '#';
-	// a.textContent = `${chatId} - ${titulo}`;
-	a.textContent = `${chatId} - ${titulo}`;
-	a.dataset.chatId = chatId;
-	a.addEventListener('click', function (event) {
-		event.preventDefault();
-		cargarChats(this.dataset.chatId);
-	});
-	li.appendChild(a);
-
-	botonBorrado(li, chatId)
-
-	// Insertar el nuevo chat al principio de la lista
-	chatListUl.insertBefore(li, chatListUl.firstChild);
-}
-
-function actualizarTituloChat(chatId, nuevoTitulo) {
-	const chatLinks = document.querySelectorAll('#chat-list-ul a');
-	chatLinks.forEach((link) => {
-		if (link.dataset.chatId == chatId) {
-			link.textContent = `${chatId} - ${nuevoTitulo}`;
-		}
-	});
-}
-
-function botonBorrado(li, chatId) {
-	const deleteIcon = document.createElement('span');
-	deleteIcon.innerHTML = '🗑️'; 
-	deleteIcon.className = 'ml-2 text-red-500 cursor-pointer hover:text-red-700';
-	deleteIcon.dataset.chatId = chatId;
-	deleteIcon.addEventListener('click', function (event) {
-		event.stopPropagation();
-		eliminarChat(this.dataset.chatId, li);
-	});
-	li.appendChild(deleteIcon);
-}
-
+// Abre el pop-up de eliminar chat
 function eliminarChat(chatId, chatElement) {
 	const chatName = chatElement.querySelector('a').textContent;
-    const confirmDelete = confirm(`¿Estás seguro de que deseas eliminar el chat "${chatName}"?`);
-	if (confirmDelete) {
-		fetch('ocultar-chat/', {
-			method: 'POST',
-			headers: {
-				'Content-Type': 'application/json',
-				'X-CSRFToken': csrftoken, // Asegúrate de que csrftoken esté definido
-			},
-			body: JSON.stringify({ chat_id: chatId }),
-		})
+	document.getElementById('pop-up-borrar').classList.remove('hidden');
+	document.getElementById('pop-up-borrar').classList.add('flex');
+	document.getElementById('pop-up-texto').innerHTML = chatName;
+	chatIdSelect = chatId;
+}
+
+// Cierra el pop-up de borrar chat
+function cerrarBorrarChat() {
+	document.getElementById('pop-up-borrar').classList.add('hidden');
+	document.getElementById('pop-up-borrar').classList.remove('flex');
+	chatElementSelect = null;
+	chatIdSelect = null;
+}
+
+// borra el chat
+function aceptarBorrarChat() {
+	chatHtml = document.getElementById(`chat${chatIdSelect}`);
+	crearChatBoton = document.getElementById('boton-nuevo-chat')
+	fetch('ocultar-chat/', {
+		method: 'POST',
+		headers: {
+			'Content-Type': 'application/json',
+			'X-CSRFToken': csrftoken, // Asegúrate de que csrftoken esté definido
+		},
+		body: JSON.stringify({ chat_id: chatIdSelect }),
+	})
 		.then((response) => {
 			if (!response.ok) {
 				throw new Error('Error al eliminar el chat');
@@ -557,11 +578,18 @@ function eliminarChat(chatId, chatElement) {
 		})
 		.then((data) => {
 			if (data.success) {
-				chatElement.remove();
+				
+				//si es el chat actual recarga la pagina
+				if (chatHtml.classList.contains('bg-neutral-200')) {
+					crearChatBoton.click()
+				} else {
+					cargarHistorialChats();
+					cerrarBorrarChat();
+				}
 			} else {
 				alert('Error al eliminar el chat');
 			}
 		})
 		.catch((error) => console.error('Error deleting chat:', error));
-	}
 }
+

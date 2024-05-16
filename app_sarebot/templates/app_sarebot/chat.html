@@ -3,18 +3,31 @@
 {% endblock %} {% comment %} {{ csrf_token }} {% endcomment %} {% comment %}
 <div class="flex h-full flex-col min-h-screen pt-24 container mx-auto px-4">
 	{% endcomment %}
+	<div id="pop-up-borrar" class="absolute w-screen h-screen hidden">
+		<div class="absolute w-screen h-screen opacity-45 bg-neutral-600 z-50"></div>
+		<div id="pop-up-fondo" class="absolute w-screen h-screen flex flex-col justify-center items-center z-50">
+			<div class="rounded-t-xl bg-white border-b-2 border-neutral-200 max-w-lg w-full px-10 py-6">
+				<p class="font-semibold text-neutral-600 text-xl">Eliminar chat</p>
+			</div>
+			<div class="bg-white rounded-b-xl max-w-lg w-full py-8 flex flex-col gap-8">
+				<p class="px-10">¿Estás seguro de eliminar el chat: <span id="pop-up-texto"></span>?</p>
+				<div class="flex gap-4 w-full justify-end px-10">
+					<button class="px-4 py-2 border-red-600 rounded-2xl bg-neutral-50 hover:bg-white hover:border-red-400 transition border text-sm" id="pop-up-cancelar">Cancelar</button>
+					<button class="px-6 py-2 border-red-600 rounded-2xl bg-red-600 text-white text-sm hover:bg-red-500 transition" id="pop-up-aceptar">Borrar</button>
+				</div>
+			</div>
+		</div>
+	</div>
 	<div class="flex h-full flex-col">
 		<div class="flex">
 			<!-- Chat List Container -->
 			<div id="chat-list" class="w-1/12 min-w-64 bg-neutral-50 relative bottom-0 mt-menu">
-				<div class="overflow-y-scroll pt-8 pb-20 h-screen-no-menu px-6">
+				<div class="overflow-y-scroll pt-8 pb-20 h-screen-no-menu px-3">
 					<h2 class="text-2xl font-bold text-neutral-600 border-b pb-2 border-neutral-200">Chats</h2>
-					<ul
-						id="chat-list-ul"
-						class="!list-none !p-0 list-inside mt-4 [&>li]:mb-2 [&>li>a:hover]:text-neutral-600 [&>li>a:hover]:border-b [&>li>a:hover]:border-neutral-400 text-neutral-700"></ul>
+					<ul id="chat-list-ul" class="!list-none !p-0 list-inside mt-4 [&>li]:mb-2 text-neutral-700 [&>li>a:hover]:bg-neutral-200 [&>li>a]:px-3 [&>li>a]:rounded"></ul>
 				</div>
 				<div class="bg-neutral-100 absolute bottom-0 w-full">
-					<a class="flex gap-2 w-full justify-center py-4 group" href="{% url 'chat' %}">
+					<a class="flex gap-2 w-full justify-center py-4 group" href="{% url 'chat' %}" id="boton-nuevo-chat">
 						<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" class="fill-neutral-500 w-5 group-hover:fill-neutral-600">
 							<!--!Font Awesome Free 6.5.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2024 Fonticons, Inc.-->
 							<path
@@ -49,7 +62,7 @@
 					{% csrf_token %}
 				</div>
 				<!-- div con el textarea y el boton -->
-				<div class="w-full absolute bottom-0 bg-white z-50 left-0 right-0">
+				<div class="w-full absolute bottom-0 bg-white z-40 left-0 right-0">
 					<form class="stretch mx-2 flex flex-row gap-3 mb-4 mt-4 lg:mx-auto lg:max-w-2xl xl:max-w-3xl border-gray-500">
 						<div class="relative flex h-full flex-1 flex-col">
 							<div class="flex w-full items-center">
