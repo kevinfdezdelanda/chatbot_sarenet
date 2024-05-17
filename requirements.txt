@@ -24,4 +24,5 @@ python-dotenv==1.0.1
 django-admin-interface==0.28.6
 django-colorfield==0.11.0
 sentence-transformers==2.7.0
-llama-index==0.10.36
+llama-index==0.10.37
+llama-index-embeddings-huggingface==0.2.0
