@@ -1,16 +1,19 @@
 import json
 import requests
 from django.shortcuts import render
-from django.http import HttpResponse, JsonResponse, StreamingHttpResponse
+from django.http import JsonResponse, StreamingHttpResponse
 from .models import Prompt, Registro, Chat
 
 
 def chat(request):
     return render(request, 'app_sarebot/chat.html')
 
-def busquedas(request):
+def consultas(request):
     prompts = Prompt.objects.all()
     return render(request, 'app_sarebot/index.html', {'prompts': prompts})
+
+def busquedas(request):
+    return render(request, 'app_sarebot/busquedas.html')
 
 #Funcion para listar los chats
 def listar_chats(request):

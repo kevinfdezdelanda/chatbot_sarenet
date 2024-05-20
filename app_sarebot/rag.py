@@ -1,4 +1,6 @@
+import json
 import requests
+from django.http import StreamingHttpResponse
 from typing import Optional, List, Mapping, Any
 from llama_index.core import Settings, SimpleDirectoryReader, SummaryIndex, VectorStoreIndex
 from llama_index.core.node_parser import SentenceSplitter
@@ -9,14 +11,13 @@ from llama_index.core.llms import CustomLLM, CompletionResponse, CompletionRespo
 from llama_index.core.llms.callbacks import llm_completion_callback
 from llama_index.embeddings.huggingface import HuggingFaceEmbedding
 
-
 API_URL = "http://172.26.215.178:1234/v1/chat/completions"
 MODEL = "bartowski/c4ai-command-r-v01-GGUF"
 TEMPERATURE = 0.4
 MAX_TOKENS = -1
 
-    
-class CustomLLM(CustomLLM):
+
+class CustomModel(CustomLLM):
     context_window: int = 3900
     num_output: int = 256
     model_name: str = "custom"
@@ -49,8 +50,17 @@ class CustomLLM(CustomLLM):
         }
         response = requests.post(self.api_url, json=data, headers=headers, stream=stream)
         if response.status_code == 200:
-            # return response.iter_lines()
-            return response.json()['choices'][0]['message']['content']
+            if stream:
+                for chunk in response.iter_lines():
+                    if chunk:  # Ensure the chunk is not empty
+                        data_str = chunk.decode('utf-8').replace('data: ', '')
+                        if data_str.strip() != '[DONE]':  # Check if it's the end message
+                            data = json.loads(data_str)
+                            if 'choices' in data:
+                                for choice in data['choices']:
+                                    partial_response = choice['delta']
+                                    if 'delta' in choice and 'content' in partial_response:
+                                        yield partial_response['content']
         else:
             raise Exception(f"Request failed with status code {response.status_code}")
         
@@ -61,14 +71,14 @@ class CustomLLM(CustomLLM):
     
     @llm_completion_callback()
     def stream_complete(self, prompt: str, **kwargs: Any) -> CompletionResponseGen:
-        response_text = self.call_api(prompt)
+        response_text = self.call_api(prompt, stream=True)
         response = ""
         for token in response_text:
             response += token
             yield CompletionResponse(text=response, delta=token)
 
 
-def main():
+def search_rag(request):
     # Carga de documentos.
     documents = SimpleDirectoryReader(input_dir="data").load_data()
     
@@ -79,7 +89,7 @@ def main():
     nodes = splitter.get_nodes_from_documents(documents)
     
     # LLM
-    Settings.llm = CustomLLM()
+    Settings.llm = CustomModel()
     
     # Modelo de embeddings
     Settings.embed_model = HuggingFaceEmbedding(
@@ -92,10 +102,11 @@ def main():
     
     # Motores de consulta
     summary_query_engine = summary_index.as_query_engine(
-        response_mode="tree_summarize",
-        use_async=True,
+        # response_mode="tree_summarize",
+        # use_async=True,
+        streaming=True
     )
-    vector_query_engine = vector_index.as_query_engine()
+    vector_query_engine = vector_index.as_query_engine(streaming=True)
     
     # Herramientas de consulta
     summary_tool = QueryEngineTool.from_defaults(
@@ -123,11 +134,19 @@ def main():
     )
     
     # Query
-    response = query_engine.query(
-        "¿Quiénes componen el equipo SareBot?"
+    response = vector_query_engine.query(
+        request.GET.get('user', '')
     )
 
-    print(f"\n\nResponse string: {str(response)}")
+    user_query = request.GET.get('user', '')
+
+    def stream_response():
+        response = vector_query_engine.query(user_query)
+        for chunk in response.response_gen:
+            yield f'data: {json.dumps({"content": chunk})}\n\n'
+        yield f'data: {json.dumps({"event": "done"})}\n\n'
+    
+    return StreamingHttpResponse(stream_response(), content_type='text/event-stream')
 
 if __name__ == "__main__":
-    main()
+    search_rag()
