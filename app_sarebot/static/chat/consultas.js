@@ -11,6 +11,8 @@ var val_exitosa = null;
 var val_error = null;
 var val_text_button = null;
 
+var promptAnterior = []; //[0] prompt usuario [1] prompt sys
+
 window.onload = function () {
 	ratingThumbs = document.getElementById('ratingThumbs');
 	val_negativa_0 = document.getElementById('val-negativa-0');
@@ -30,7 +32,7 @@ window.onload = function () {
 
 	// Al pulsar el boton llama a la api
 	document.getElementById('apiCallButton').addEventListener('click', function () {
-		llamar_api(input, select);
+		llamar_api(input, select, false);
 	});
 
 	// aumenta el tamaño del textarea segun el contenido
@@ -42,25 +44,25 @@ window.onload = function () {
 	input.addEventListener('keypress', function (event) {
 		if (event.key === 'Enter' && !event.shiftKey) {
 			event.preventDefault();
-			llamar_api(input, select);
+			llamar_api(input, select, false);
 		}
 	});
 
 	document.getElementById('val-positiva').addEventListener('click', function (event) {
 		document.getElementById('rating').value = 1;
-		val_selec = rateResponse(1, val_text_button, val_positiva_0, val_positiva_1, val_negativa_1, val_negativa_0);
+		val_selec = rateResponse(1, val_text_button, val_positiva_0, val_positiva_1, val_negativa_1, val_negativa_0, val_selec);
 	});
 
 	document.getElementById('val-negativa').addEventListener('click', function (event) {
 		document.getElementById('rating').value = 0;
-		val_selec = rateResponse(0, val_text_button, val_positiva_0, val_positiva_1, val_negativa_1, val_negativa_0);
+		val_selec = rateResponse(0, val_text_button, val_positiva_0, val_positiva_1, val_negativa_1, val_negativa_0, val_selec);
 	});
 
 	document.getElementById('sendButton').addEventListener('click', function (event) {
 		var id_registro = document.getElementById('id-registro').value;
 		var valoracion = document.getElementById('rating').value;
 		var comentario = document.getElementById('comment').value;
-		submitRating("api/save-rating/", id_registro, valoracion, comentario, ratingThumbs, val_exitosa, val_error);
+		submitRating('api/save-rating/', id_registro, valoracion, comentario, ratingThumbs, val_exitosa, val_error);
 	});
 
 	document.getElementById('comment').addEventListener('keypress', function (event) {
@@ -69,8 +71,12 @@ window.onload = function () {
 			var id_registro = document.getElementById('id-registro').value;
 			var valoracion = document.getElementById('rating').value;
 			var comentario = document.getElementById('comment').value;
-			submitRating("api/save-rating/", id_registro, valoracion, comentario, ratingThumbs, val_exitosa, val_error);
+			submitRating('api/save-rating/', id_registro, valoracion, comentario, ratingThumbs, val_exitosa, val_error);
 		}
+	});
+
+	document.getElementById('regenerateMsg').addEventListener('click', function (event) {
+		regenerarmsg();
 	});
 };
 
@@ -105,10 +111,17 @@ async function obtener_prompt(select) {
 }
 
 // llama a la api en stream para obtener la respuesta del prompt
-async function llamar_api(input, select) {
-	//obtengo el texto y el prompt
-	texto = input.value;
-	prompt1 = await obtener_prompt(select);
+async function llamar_api(input, select, regenerar) {
+	if (!regenerar) {
+		//obtengo el texto y el prompt
+		texto = input.value;
+		prompt1 = await obtener_prompt(select);
+	}else{
+		//obtengo el texto y el prompt del msg anterior
+		texto = promptAnterior[0];
+		prompt1 = promptAnterior[1];
+	}
+
 	if (texto != '' && prompt1 != '') {
 		// Si estan vacios no hago nada
 		disable_enable_elements(false);
@@ -120,6 +133,9 @@ async function llamar_api(input, select) {
 
 		// cargo el conversor de markdown
 		const md = crear_conversor_markdown();
+
+		// Guardo el prompt y el texto para poder regenerar el msg
+		promptAnterior = [texto, prompt1];
 
 		// Crea un EventSource que apunta a la api en stream
 		var url = `call-api/?system=${encodeURIComponent(prompt1)}&user=${encodeURIComponent(texto)}&origen=${encodeURIComponent('Consulta')}`;
@@ -198,4 +214,8 @@ function reset_val() {
 	cambiar_icono_val_1(false, val_positiva_0, val_positiva_1);
 	cambiar_icono_val_0(false, val_negativa_1, val_negativa_0);
 	mostrar_ocultar_val(false, null, ratingThumbs, val_exitosa, val_error);
+}
+
+function regenerarmsg() {
+	llamar_api(null, null, true);
 }
