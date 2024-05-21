@@ -1,15 +1,15 @@
 import json
 import requests
-from django.http import StreamingHttpResponse
-from typing import Optional, List, Mapping, Any
+from typing import Any
 from llama_index.core import Settings, SimpleDirectoryReader, SummaryIndex, VectorStoreIndex
+from llama_index.core.llms import CustomLLM, CompletionResponse, CompletionResponseGen, LLMMetadata
+from llama_index.core.llms.callbacks import llm_completion_callback
 from llama_index.core.node_parser import SentenceSplitter
 from llama_index.core.tools import QueryEngineTool
 from llama_index.core.query_engine.router_query_engine import RouterQueryEngine
 from llama_index.core.selectors import LLMSingleSelector
-from llama_index.core.llms import CustomLLM, CompletionResponse, CompletionResponseGen, LLMMetadata
-from llama_index.core.llms.callbacks import llm_completion_callback
 from llama_index.embeddings.huggingface import HuggingFaceEmbedding
+
 
 API_URL = "http://172.26.215.178:1234/v1/chat/completions"
 MODEL = "bartowski/c4ai-command-r-v01-GGUF"
@@ -34,7 +34,7 @@ class CustomModel(CustomLLM):
             model_name=self.model_name,
         )
 
-    def call_api(self, user, system="Follow instructions.", messages=None, stream=False):
+    def call_api(self, user, system="Follow instructions.", messages=None, stream=True):
         headers = {'Content-Type': 'application/json'}
         if messages is None:
             messages = [
@@ -51,34 +51,49 @@ class CustomModel(CustomLLM):
         response = requests.post(self.api_url, json=data, headers=headers, stream=stream)
         if response.status_code == 200:
             if stream:
-                for chunk in response.iter_lines():
-                    if chunk:  # Ensure the chunk is not empty
-                        data_str = chunk.decode('utf-8').replace('data: ', '')
-                        if data_str.strip() != '[DONE]':  # Check if it's the end message
-                            data = json.loads(data_str)
-                            if 'choices' in data:
-                                for choice in data['choices']:
-                                    partial_response = choice['delta']
-                                    if 'delta' in choice and 'content' in partial_response:
-                                        yield partial_response['content']
+                return response.iter_lines()
+            else:
+                return response.json()['choices'][0]['message']['content']
         else:
             raise Exception(f"Request failed with status code {response.status_code}")
         
     @llm_completion_callback()
     def complete(self, prompt: str, **kwargs: Any) -> CompletionResponse:
-        response_text = self.call_api(prompt)
+        response_text = self.call_api(prompt, stream=False)
         return CompletionResponse(text=response_text)
     
+    # @llm_completion_callback()
+    # def stream_complete(self, prompt: str, **kwargs: Any) -> CompletionResponseGen:
+    #     response_text = self.call_api(prompt, stream=True)
+    #     response = ""
+    #     for token in response_text:
+    #         response += token
+    #         yield CompletionResponse(text=response, delta=token)
+            
     @llm_completion_callback()
     def stream_complete(self, prompt: str, **kwargs: Any) -> CompletionResponseGen:
-        response_text = self.call_api(prompt, stream=True)
-        response = ""
-        for token in response_text:
-            response += token
-            yield CompletionResponse(text=response, delta=token)
+        response_gen = self.call_api(prompt, stream=True)
+        complete_response = ""
+        for chunk in response_gen:
+            if chunk:
+                data_str = chunk.decode('utf-8').replace('data: ', '')
+                if data_str.strip() != '[DONE]':  # Check for completion message
+                    try:
+                        data = json.loads(data_str)
+                        if 'choices' in data:
+                            for choice in data['choices']:
+                                partial_response = choice['delta']
+                                if 'delta' in choice and 'content' in partial_response:
+                                    complete_response += partial_response['content']
+                                    yield CompletionResponse(text=complete_response, delta=partial_response['content'])
+                    except json.JSONDecodeError as e:
+                        yield CompletionResponse(text=complete_response, delta=f"Error parsing JSON: {str(e)}")
+                else:
+                    break  # Break the loop to end the stream
 
+llm = CustomModel()
 
-def search_rag(request):
+def search_rag():
     # Carga de documentos.
     documents = SimpleDirectoryReader(input_dir="data").load_data()
     
@@ -89,7 +104,7 @@ def search_rag(request):
     nodes = splitter.get_nodes_from_documents(documents)
     
     # LLM
-    Settings.llm = CustomModel()
+    Settings.llm = llm
     
     # Modelo de embeddings
     Settings.embed_model = HuggingFaceEmbedding(
@@ -102,8 +117,8 @@ def search_rag(request):
     
     # Motores de consulta
     summary_query_engine = summary_index.as_query_engine(
-        # response_mode="tree_summarize",
-        # use_async=True,
+        response_mode="tree_summarize",
+        use_async=True,
         streaming=True
     )
     vector_query_engine = vector_index.as_query_engine(streaming=True)
@@ -133,20 +148,37 @@ def search_rag(request):
         verbose=True
     )
     
-    # Query
-    response = vector_query_engine.query(
-        request.GET.get('user', '')
+    response = query_engine.query(
+        "¿Quienes forman SareBot?"
     )
-
-    user_query = request.GET.get('user', '')
-
-    def stream_response():
-        response = vector_query_engine.query(user_query)
-        for chunk in response.response_gen:
-            yield f'data: {json.dumps({"content": chunk})}\n\n'
-        yield f'data: {json.dumps({"event": "done"})}\n\n'
     
-    return StreamingHttpResponse(stream_response(), content_type='text/event-stream')
+    # for chunk in response.response_gen:
+    #     print(chunk)
+
+    # print(str(response))
+    
+    # response.print_response_stream()
+    # print(type(response))
+    
+    # for chunk in response.response_gen:
+    #     print(chunk.text)
+    
+    
+    # # Debugging: Print available attributes of the response
+    # print(f"Response type: {type(response)}")
+    # print("Available attributes in response:")
+    # for attribute in dir(response):
+    #     print(attribute)
+    
+    # # Attempt to print the response
+    # try:
+    #     response.print_response_stream()
+    # except AttributeError as e:
+    #     print(f"AttributeError: {e}")
+    
+    for chunk in response.response_gen:
+        print(chunk, end='')
+
 
 if __name__ == "__main__":
     search_rag()

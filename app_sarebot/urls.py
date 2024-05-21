@@ -15,5 +15,6 @@ urlpatterns = [
     path('chat/listar_chats/', views.listar_chats, name='listar_chats'),
     path('chat/cargar_chats/', views.cargar_chats, name='cargar_chats'),
     path('chat/ocultar-chat/', views.ocultarChat, name='ocultar-chat'),
-    path('busquedas/call-api/', rag.search_rag, name='search-rag')
+    path('busquedas/call-api/', views.search_rag, name='search-rag'),
+    path("busquedas/api/save-rating/", views.registrarValoracion, name="save-search-rating"),
 ]

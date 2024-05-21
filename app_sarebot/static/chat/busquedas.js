@@ -116,7 +116,7 @@ async function llamar_api(input, select) {
 		const md = crear_conversor_markdown();
 
 		// Crea un EventSource que apunta a la api en stream
-		var url = `call-api/?system=${encodeURIComponent(prompt1)}&user=${encodeURIComponent(texto)}&origen=${encodeURIComponent('Consulta')}`;
+		var url = `call-api/?system=${encodeURIComponent(prompt1)}&user=${encodeURIComponent(texto)}&origen=${encodeURIComponent('Búsqueda')}`;
 		var eventSource = new EventSource(url);
 
 		// Cuando recibe un msg del stream
