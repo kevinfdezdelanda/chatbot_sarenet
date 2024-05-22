@@ -42,7 +42,7 @@ class Documento(models.Model):
     fichero = models.FileField(upload_to="data/")
     
     def __str__(self) -> str:
-        return f"{self.fichero.name.split("/")[-1]}"
+        return f"{self.fichero.name.split('/')[-1]}"
     
 
 @receiver(post_save, sender=Documento)
