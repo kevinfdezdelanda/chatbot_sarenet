@@ -1,4 +1,9 @@
 from django.db import models
+from django.dispatch import receiver
+from django.db.models.signals import post_save
+from llama_index.core import SimpleDirectoryReader
+from llama_index.core.node_parser import SentenceSplitter
+from .state import NODES, update_query_engine
 
 
 class Prompt(models.Model):
@@ -31,3 +36,21 @@ class Registro(models.Model):
     
     def __str__(self) -> str:
         return f"{self.pregunta}"
+    
+class Documento(models.Model):
+    id = models.BigAutoField(primary_key=True)
+    fichero = models.FileField(upload_to="data/")
+    
+    def __str__(self) -> str:
+        return f"{self.fichero.name.split("/")[-1]}"
+    
+
+@receiver(post_save, sender=Documento)
+def index_document(sender, instance, **kwargs):
+    documents = SimpleDirectoryReader(input_dir="data").load_data()
+    splitter = SentenceSplitter(chunk_size=1024)
+    global NODES
+    NODES.clear()
+    NODES.extend(splitter.get_nodes_from_documents(documents))
+    print(f"NODES updated: {NODES}")  # Añadir para depuración
+    update_query_engine()  # Actualizar el query engine

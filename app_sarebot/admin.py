@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.utils.html import format_html
-from .models import Prompt, Registro, Chat
+from .models import Prompt, Registro, Chat, Documento
 
 class AdminPrompt(admin.ModelAdmin):
     # Campos que se muestran en el listado de Prompts
@@ -67,3 +67,4 @@ class AdminChat(admin.ModelAdmin):
 admin.site.register(Prompt, AdminPrompt)
 admin.site.register(Registro, AdminRegistro)
 admin.site.register(Chat, AdminChat)
+admin.site.register(Documento)
