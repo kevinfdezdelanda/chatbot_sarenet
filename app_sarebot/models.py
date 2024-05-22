@@ -3,7 +3,7 @@ from django.dispatch import receiver
 from django.db.models.signals import post_save
 from llama_index.core import SimpleDirectoryReader
 from llama_index.core.node_parser import SentenceSplitter
-from .state import NODES, update_query_engine
+from .state import update_query_engine, load_and_index_documents
 
 
 class Prompt(models.Model):
@@ -47,10 +47,5 @@ class Documento(models.Model):
 
 @receiver(post_save, sender=Documento)
 def index_document(sender, instance, **kwargs):
-    documents = SimpleDirectoryReader(input_dir="data").load_data()
-    splitter = SentenceSplitter(chunk_size=1024)
-    global NODES
-    NODES.clear()
-    NODES.extend(splitter.get_nodes_from_documents(documents))
-    print(f"NODES updated: {NODES}")  # Añadir para depuración
+    load_and_index_documents()
     update_query_engine()  # Actualizar el query engine

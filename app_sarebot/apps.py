@@ -1,5 +1,5 @@
 from django.apps import AppConfig
-from .state import NODES, update_query_engine
+from .state import update_query_engine, load_and_index_documents
 
 
 
@@ -8,5 +8,5 @@ class AppSarebotConfig(AppConfig):
     name = 'app_sarebot'
     
     def ready(self):
-        if NODES:
-            update_query_engine()
+        load_and_index_documents()
+        update_query_engine()
