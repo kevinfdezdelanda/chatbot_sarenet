@@ -40,7 +40,7 @@
 		</div>
 	</div>
 	<!-- Resultados -->
-	<div id="result" class="mt-5 ">
+	<div id="result" class="mt-5 hidden">
 		<div class="p-4 pb-0 border border-neutral-200 rounded-xl">
 			<p class="w-full border-b border-neutral-200 font-bold text-xl pb-4 text-neutral-700">Respuesta IA</p>
 			<div class="w-full py-4">
@@ -62,7 +62,7 @@
 				</div>
 			</div>
 			<!-- VALORACIÓN DE RESPUESTA -->
-			<div id="ratingThumbs" class="flex-col flex gap-4 items-start justify-start h-auto border-t border-neutral-200 pt-4">
+			<div id="ratingThumbs" class="flex-col hidden gap-4 items-start justify-start h-auto border-t border-neutral-200 pt-4">
 				{% csrf_token %}
 				<input type="hidden" id="rating" />
 				<input type="hidden" id="id-registro" />
