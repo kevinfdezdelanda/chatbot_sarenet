@@ -43,51 +43,43 @@ def get_prompt(request):
 def api_view(request):
     user = request.GET.get('user', '')
     origen = request.GET.get('origen', '')
-    if origen == "Consulta":
-        system = request.GET.get('system', '')
+    system = request.GET.get('system', '') if origen == "Consulta" else "Eres un chatbot que responde con respeto y atiende a las necesidades del usuario"
+    chat_id = request.GET.get('chat', '')
+    messages = None
+    more_messages = False
+    chat = None
+    
     if origen == "Chat":
-        system = "Eres un chatbot que responde con respeto y atiende a las necesidades del usuario"
-        chat_id = request.GET.get('chat', '')
         chat = Chat.objects.get(id=chat_id)
         more_messages = chat.registros_chat.exists()
         if more_messages:
-            messages = get_messages(
-                system=system,
-                chat=chat,
-                next_message=user
-            )
+            messages = get_messages(system=system, chat=chat, next_message=user)
 
     def event_stream():
         complete_response = []
-        stream = llm.call_api(
-            user=user,
-            system=system,
-            messages=messages if origen == "Chat" and more_messages else None
-        )
-        for chunk in stream:
-            if chunk:  # Asegura que el chunk no está vacío
-                data_str = chunk.decode('utf-8').replace('data: ', '')
-                if data_str.strip() != '[DONE]':  # Chequea si es el mensaje de finalización
-                    try:
-                        data = json.loads(data_str)
-                        if 'choices' in data:
-                            for choice in data['choices']:
-                                partial_response = choice['delta']
-                                if 'delta' in choice and 'content' in partial_response:
-                                    complete_response.append(partial_response['content'])
-                                    yield f"data: {json.dumps(partial_response)}\n\n"
-                    except json.JSONDecodeError as e:
-                        yield f"data: Error parsing JSON: {str(e)}\n\n"
-                else:
-                    break  # Rompe el ciclo para terminar el stream
+        stream = llm.call_api(user=user, system=system, messages=messages if more_messages else None)
+        try:
+            for chunk in stream:
+                if chunk:
+                    data_str = chunk.decode('utf-8').replace('data: ', '')
+                    if data_str.strip() != '[DONE]':
+                        try:
+                            data = json.loads(data_str)
+                            if 'choices' in data:
+                                for choice in data['choices']:
+                                    partial_response = choice.get('delta', {}).get('content', '')
+                                    if partial_response:
+                                        complete_response.append(partial_response)
+                                        yield f"data: {json.dumps({'content': partial_response})}\n\n"
+                        except json.JSONDecodeError as e:
+                            yield f"data: {{'error': 'Error parsing JSON', 'details': '{str(e)}'}}\n\n"
+                    else:
+                        break
+        except Exception as e:
+            yield f"data: {{'error': 'Stream error', 'details': '{str(e)}'}}\n\n"
+
         final_response = "".join(complete_response)
-        id_registro = registrarLog(
-            user_prompt=user,
-            system_prompt=system if origen == "Consulta" else None,
-            response=final_response,
-            origen=origen,
-            chat=chat if origen == "Chat" else None
-        )
+        id_registro = registrarLog(user_prompt=user, system_prompt=system if origen == "Consulta" else None, response=final_response, origen=origen, chat=chat)
         
         if origen == "Chat" and chat.titulo == "Chat sin título":
             nuevo_titulo = obtenerTituloChat(user, final_response)
@@ -95,11 +87,12 @@ def api_view(request):
             chat.save()
             yield f"event: title\ndata: {json.dumps({'chat_id': chat.id, 'titulo': nuevo_titulo})}\n\n"
         
-        yield f"event: done\ndata: {id_registro}\n\n"  # Envía un evento personalizado llamado 'done'
-    
+        yield f"event: done\ndata: {id_registro}\n\n"
+
     response = StreamingHttpResponse(event_stream(), content_type='text/event-stream')
     response['Cache-Control'] = 'no-cache'
     return response
+
     
 # def llamar_api(user, system, messages=None, stream=True):
 #     url = "http://172.26.215.178:1234/v1/chat/completions"
