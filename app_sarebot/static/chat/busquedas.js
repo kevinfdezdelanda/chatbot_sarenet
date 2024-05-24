@@ -149,6 +149,8 @@ async function llamar_api(input, select) {
 
 		// Cuando da error el stream
 		eventSource.onerror = function (error) {
+			msg = document.getElementById('msg-generando').style.display = 'none';
+			document.getElementById('apiResponse').innerHTML = `<p class="text-red-600">Ha ocurrido un error!</p>`;
 			console.error('Error:', error);
 			eventSource.close();
 			disable_enable_elements(true);

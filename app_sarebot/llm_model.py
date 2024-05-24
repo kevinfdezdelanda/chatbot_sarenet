@@ -66,6 +66,7 @@ class CustomModel(CustomLLM):
                     try:
                         data = json.loads(data_str)
                         if 'choices' in data:
+                            yield CompletionResponse(text=complete_response, delta='') # Arreglo para que muestre la primera letra
                             for choice in data['choices']:
                                 partial_response = choice['delta']
                                 if 'delta' in choice and 'content' in partial_response:
