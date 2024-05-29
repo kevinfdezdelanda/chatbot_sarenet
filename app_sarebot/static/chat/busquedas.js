@@ -121,7 +121,7 @@ async function llamar_api(input, select, regenerar=false) {
 			} catch (e) {
 				console.error('Error parsing JSON:', e);
 			}
-		};
+		}; 
 
 		// Cuando recibe información de documentos usados
         eventSource.addEventListener('documents_used', function (event) {
