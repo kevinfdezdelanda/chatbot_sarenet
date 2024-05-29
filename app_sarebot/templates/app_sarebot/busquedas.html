@@ -1,71 +1,69 @@
-{% extends 'base.html' %} {% load static tailwind_tags %} 
-{% block scripts %}
+{% extends 'base.html' %} {% load static tailwind_tags %} {% block scripts %}
 <script type="text/javascript" src="{% static 'chat/busquedas.js' %}"></script>
-{% endblock %}
-{% block content %}
+{% endblock %} {% block content %}
 <div class="pt-24 container mx-auto px-4 mb-10 flex flex-col min-h-screen2">
-  <h1 class="text-4xl font-bold text-neutral-600">Búsquedas</h1>
-  <!-- inputs -->
-  <div class="mt-5 flex flex-col gap-2">
-    {% comment %} <div class="flex flex-wrap items-center gap-4">
-      <div class="relative h-10 w-72 min-w-[200px]">
-        <select id="promptSelector"
-          class="peer h-full w-full rounded-[7px] border border-blue-gray-200 border-t-transparent bg-transparent px-3 py-2.5 font-sans text-sm font-normal text-blue-gray-700 outline outline-0 transition-all placeholder-shown:border placeholder-shown:border-blue-gray-200 placeholder-shown:border-t-blue-gray-200 empty:!bg-gray-900 focus:border-2 focus:border-gray-900 focus:border-t-transparent focus:outline-0 disabled:border-0 disabled:bg-blue-gray-50">
-          {% for prompt in prompts %}
-          <option value="{{prompt.id}}" {% if prompt.id|stringformat:"s" == request.GET.prompt %}selected{% endif %}>{{prompt.nombre}}</option>
-          {% endfor %}
-        </select>
-        <label
-          class="before:content[' '] after:content[' '] pointer-events-none absolute left-0 -top-1.5 flex h-full w-full select-none text-[11px] font-normal leading-tight text-blue-gray-400 transition-all before:pointer-events-none before:mt-[6.5px] before:mr-1 before:box-border before:block before:h-1.5 before:w-2.5 before:rounded-tl-md before:border-t before:border-l before:border-blue-gray-200 before:transition-all after:pointer-events-none after:mt-[6.5px] after:ml-1 after:box-border after:block after:h-1.5 after:w-2.5 after:flex-grow after:rounded-tr-md after:border-t after:border-r after:border-blue-gray-200 after:transition-all peer-placeholder-shown:text-sm peer-placeholder-shown:leading-[3.75] peer-placeholder-shown:text-blue-gray-500 peer-placeholder-shown:before:border-transparent peer-placeholder-shown:after:border-transparent peer-focus:text-[11px] peer-focus:leading-tight peer-focus:text-gray-900 peer-focus:before:border-t-2 peer-focus:before:border-l-2 peer-focus:before:border-gray-900 peer-focus:after:border-t-2 peer-focus:after:border-r-2 peer-focus:after:border-gray-900 peer-disabled:text-transparent peer-disabled:before:border-transparent peer-disabled:after:border-transparent peer-disabled:peer-placeholder-shown:text-blue-gray-500">
-          Selecciona modelo
-        </label>
-      </div>
-      <p  id="description" class="text-neutral-600">{{prompts.0.descripcion}}</p>
-    </div> {% endcomment %}
-    <div class="w-full flex gap-2">
-      <textarea
-      id="texto_prompt"
-      class="bg-gray-50 border min-h-11 h-11 max-h-96 resize-y border-gray-300 text-gray-900 text-sm rounded focus:ring-neutral-400 focus:border-neutral-400 block w-full p-2.5 disabled:opacity-65"
-      placeholder="Buscar..."></textarea>
-      <div>
-        <button id="apiCallButton"
-          class="rounded-lg border border-gray-300 bg-neutral-100 p-0.5 text-red-600 transition enabled:hover:bg-white enabled:hover:shadow-lg w-11 h-11   flex items-center disabled:opacity-65">
-          <span class="m-auto">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" class="w-3.5 fill-red-600">
-              <!--!Font Awesome Free 6.5.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2024 Fonticons, Inc.-->
-              <path
-                d="M416 208c0 45.9-14.9 88.3-40 122.7L502.6 457.4c12.5 12.5 12.5 32.8 0 45.3s-32.8 12.5-45.3 0L330.7 376c-34.4 25.2-76.8 40-122.7 40C93.1 416 0 322.9 0 208S93.1 0 208 0S416 93.1 416 208zM208 352a144 144 0 1 0 0-288 144 144 0 1 0 0 288z" />
-            </svg>
-          </span>
-        </button>
-      </div>
-    </div>
-    
-  </div>
-  <!-- Resultados -->
-  <div id="result" class="mt-5 hidden">
-    <div class="p-4 pb-0 border border-neutral-200 rounded-xl">
-      <p class="w-full border-b border-neutral-200 font-bold text-xl pb-4 text-neutral-700">Respuesta IA</p>
-      <div class="w-full py-4">
-        <div class="text-sm pb-2 text-neutral-600 w-full flex">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" class="w-3 mr-2 fill-green-500">
-            <!--!Font Awesome Free 6.5.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2024 Fonticons, Inc.-->
-            <path
-              d="M438.6 105.4c12.5 12.5 12.5 32.8 0 45.3l-256 256c-12.5 12.5-32.8 12.5-45.3 0l-128-128c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0L160 338.7 393.4 105.4c12.5-12.5 32.8-12.5 45.3 0z" />
-          </svg>
-          Respuesta IA
-        </div>
-        <div class="text-neutral-800">
-          <div id="msg-generando" class="flex items-center gap-2">
-            <p class="text-blue-500">Generando </p>
-            <img class="w-6" src="{% static 'chat/images/loading.gif' %}" alt="cargando"/>
-          </div>
-          <!-- RESPUESTA GENERADA IA -->
-          <div id="apiResponse" class="[&>p]:mb-2 [&>pre]:my-2 [&>ol]:list-decimal [&>ol]:ml-5 [&>ul]:list-disc [&>ul]:ml-5"></div>
-        </div>
-      </div>
-      <!-- VALORACIÓN DE RESPUESTA -->
-      <div id="ratingThumbs" class="flex-col hidden gap-4 items-start justify-start h-auto border-t border-neutral-200 pt-4">
+	<h1 class="text-4xl font-bold text-neutral-600">Búsquedas</h1>
+	<!-- inputs -->
+	<div class="mt-5 flex flex-col gap-2">
+		<div class="w-full flex gap-2">
+			<textarea
+				id="texto_prompt"
+				class="bg-gray-50 border min-h-11 h-11 max-h-96 resize-y border-gray-300 text-gray-900 text-sm rounded focus:ring-neutral-400 focus:border-neutral-400 block w-full p-2.5 disabled:opacity-65"
+				placeholder="Buscar..."></textarea>
+			<div>
+				<button
+					id="apiCallButton"
+					class="rounded-lg border border-gray-300 bg-neutral-100 p-0.5 text-red-600 transition enabled:hover:bg-white enabled:hover:shadow-lg w-11 h-11 flex items-center disabled:opacity-65">
+					<span class="m-auto">
+						<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" class="w-3.5 fill-red-600">
+							<!--!Font Awesome Free 6.5.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2024 Fonticons, Inc.-->
+							<path
+								d="M416 208c0 45.9-14.9 88.3-40 122.7L502.6 457.4c12.5 12.5 12.5 32.8 0 45.3s-32.8 12.5-45.3 0L330.7 376c-34.4 25.2-76.8 40-122.7 40C93.1 416 0 322.9 0 208S93.1 0 208 0S416 93.1 416 208zM208 352a144 144 0 1 0 0-288 144 144 0 1 0 0 288z" />
+						</svg>
+					</span>
+				</button>
+			</div>
+		</div>
+	</div>
+	<!-- Resultados -->
+	<div id="result" class="mt-5 hidden">
+		<div class="p-4 pb-0 border border-neutral-200 rounded-xl">
+			<p class="w-full border-b border-neutral-200 font-bold text-xl pb-4 text-neutral-700">Respuesta IA</p>
+			<div class="w-full py-4">
+				<div class="text-sm pb-2 text-neutral-600 w-full flex">
+					<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" class="w-3 mr-2 fill-green-500">
+						<!--!Font Awesome Free 6.5.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2024 Fonticons, Inc.-->
+						<path
+							d="M438.6 105.4c12.5 12.5 12.5 32.8 0 45.3l-256 256c-12.5 12.5-32.8 12.5-45.3 0l-128-128c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0L160 338.7 393.4 105.4c12.5-12.5 32.8-12.5 45.3 0z" />
+					</svg>
+					Respuesta IA
+				</div>
+				<div class="text-neutral-800">
+					<div id="msg-generando" class="flex items-center gap-2">
+						<p class="text-blue-500">Generando</p>
+						<img class="w-6" src="{% static 'chat/images/loading.gif' %}" alt="cargando" />
+					</div>
+					<!-- RESPUESTA GENERADA IA -->
+					<div id="apiResponse" class="[&>p]:mb-2 [&>pre]:my-2 [&>ol]:list-decimal [&>ol]:ml-5 [&>ul]:list-disc [&>ul]:ml-5"></div>
+				</div>
+			</div>
+      <!-- LISTA DE QUOTES -->
+			<div id="document-info" class="mb-5" style="display: none">
+				<!--style="display: none" class="w-full pt-4">-->
+				<p class="text-sm pb-2 text-neutral-600 w-full flex">
+					<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" class="w-3 mr-2 fill-green-500">
+						<!--!Font Awesome Free 6.5.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2024 Fonticons, Inc.-->
+						<path
+							d="M438.6 105.4c12.5 12.5 12.5 32.8 0 45.3l-256 256c-12.5 12.5-32.8 12.5-45.3 0l-128-128c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0L160 338.7 393.4 105.4c12.5-12.5 32.8-12.5 45.3 0z" />
+					</svg>
+					Quotes
+				</p>
+				<div class="flex flex-wrap gap-4" id="quotes-list">
+					<!-- QUOTES A INSERTAR -->
+				</div>
+			</div>
+			<!-- VALORACIÓN DE RESPUESTA -->
+			<div id="ratingThumbs" class="flex-col hidden gap-4 items-start justify-start h-auto border-t border-neutral-200 pt-4">
 				{% csrf_token %}
 				<input type="hidden" id="rating" />
 				<input type="hidden" id="id-registro" />
@@ -132,18 +130,38 @@
 			<div id="val_error" class="hidden items-center justify-end w-full border-t border-neutral-200 py-4">
 				<p class="text-red-600">Error al valorar!</p>
 			</div>
-    </div>
-  </div>
-  <!-- MSG inicial -->
-  <div id="msg-inicial" class="h-full pt-8 flex flex-col justify-center items-center flex-auto gap-8">
-    <svg class="fill-neutral-100 max-h-40"xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--!Font Awesome Free 6.5.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2024 Fonticons, Inc.--><path d="M416 208c0 45.9-14.9 88.3-40 122.7L502.6 457.4c12.5 12.5 12.5 32.8 0 45.3s-32.8 12.5-45.3 0L330.7 376c-34.4 25.2-76.8 40-122.7 40C93.1 416 0 322.9 0 208S93.1 0 208 0S416 93.1 416 208zM208 352a144 144 0 1 0 0-288 144 144 0 1 0 0 288z"/></svg>
-    <p class="border-t-8 border-neutral-100 pt-6 text-neutral-200 text-3xl font-black font-mono max-w-sm text-center">Busca información con la IA</p>
-  </div>
+		</div>
+
+		{% comment %}
+		<div id="document-info" style="display: none"></div>
+		{% endcomment %}
+	</div>
+	<!-- MSG inicial -->
+	<div id="msg-inicial" class="h-full pt-8 flex flex-col justify-center items-center flex-auto gap-8">
+		<svg class="fill-neutral-100 max-h-40" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+			<!--!Font Awesome Free 6.5.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2024 Fonticons, Inc.-->
+			<path
+				d="M416 208c0 45.9-14.9 88.3-40 122.7L502.6 457.4c12.5 12.5 12.5 32.8 0 45.3s-32.8 12.5-45.3 0L330.7 376c-34.4 25.2-76.8 40-122.7 40C93.1 416 0 322.9 0 208S93.1 0 208 0S416 93.1 416 208zM208 352a144 144 0 1 0 0-288 144 144 0 1 0 0 288z" />
+		</svg>
+		<p class="border-t-8 border-neutral-100 pt-6 text-neutral-200 text-3xl font-black font-mono max-w-sm text-center">Busca información con la IA</p>
+	</div>
 </div>
 
-
-
 <!-- Contenido no visible para que mantengan el css de tailwind los elementos insertados desde el js -->
-<div class="code-block hidden h-0 pt-2"><li class="relative whitespace-nowrap bg-neutral-300 py-2 overflow-hidden truncate group"><a class="" href="#" data-chat-id="215">"Ayuda Informativa Multifacética"</a><div class="hidden group-hover:block absolute right-0 top-1/4 bg-neutral-200 px-3 py-0.5"><svg class="w-4 fill-neutral-600 hover:fill-red-700" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--!Font Awesome Free 6.5.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2024 Fonticons, Inc.--><path d="M135.2 17.7L128 32H32C14.3 32 0 46.3 0 64S14.3 96 32 96H416c17.7 0 32-14.3 32-32s-14.3-32-32-32H320l-7.2-14.3C307.4 6.8 296.3 0 284.2 0H163.8c-12.1 0-23.2 6.8-28.6 17.7zM416 128H32L53.2 467c1.6 25.3 22.6 45 47.9 45H346.9c25.3 0 46.3-19.7 47.9-45L416 128z" /></svg></div><span class="ml-2 text-red-500 cursor-pointer hover:text-red-700" data-chat-id="215">🗑️</span></li><pre class="theme-a11y-dark"><div class="flex bg-black text-neutral-400 justify-between py-2 px-5 rounded-t-md text-xs"><p>${lang}</p><a onclick="copyToClipboard(this)" class="flex gap-2 group"><svg class="fill-neutral-400 w-3 group-hover:fill-neutral-300 transition" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--!Font Awesome Free 6.5.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2024 Fonticons, Inc.--><path d="M208 0H332.1c12.7 0 24.9 5.1 33.9 14.1l67.9 67.9c9 9 14.1 21.2 14.1 33.9V336c0 26.5-21.5 48-48 48H208c-26.5 0-48-21.5-48-48V48c0-26.5 21.5-48 48-48zM48 128h80v64H64V448H256V416h64v48c0 26.5-21.5 48-48 48H48c-26.5 0-48-21.5-48-48V176c0-26.5 21.5-48 48-48z"/></svg><button class="group-hover:text-neutral-300 transition">Copy code</button></a></div><code class="hljs theme-a11y-dark">${result}</code></pre></div>
+<div class="code-block hidden h-0 pt-2">
+	<li class="relative whitespace-nowrap bg-neutral-300 py-2 overflow-hidden truncate group">
+		<a class="" href="#" data-chat-id="215">"Ayuda Informativa Multifacética"</a>
+		<div class="hidden group-hover:block absolute right-0 top-1/4 bg-neutral-200 px-3 py-0.5">
+			<svg class="w-4 fill-neutral-600 hover:fill-red-700" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512">
+				<!--!Font Awesome Free 6.5.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2024 Fonticons, Inc.-->
+				<path
+					d="M135.2 17.7L128 32H32C14.3 32 0 46.3 0 64S14.3 96 32 96H416c17.7 0 32-14.3 32-32s-14.3-32-32-32H320l-7.2-14.3C307.4 6.8 296.3 0 284.2 0H163.8c-12.1 0-23.2 6.8-28.6 17.7zM416 128H32L53.2 467c1.6 25.3 22.6 45 47.9 45H346.9c25.3 0 46.3-19.7 47.9-45L416 128z" />
+			</svg>
+		</div>
+		<span class="ml-2 text-red-500 cursor-pointer hover:text-red-700" data-chat-id="215">🗑️</span>
+	</li>
+	<pre
+		class="theme-a11y-dark"><div class="flex bg-black text-neutral-400 justify-between py-2 px-5 rounded-t-md text-xs"><p>${lang}</p><a onclick="copyToClipboard(this)" class="flex gap-2 group"><svg class="fill-neutral-400 w-3 group-hover:fill-neutral-300 transition" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--!Font Awesome Free 6.5.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2024 Fonticons, Inc.--><path d="M208 0H332.1c12.7 0 24.9 5.1 33.9 14.1l67.9 67.9c9 9 14.1 21.2 14.1 33.9V336c0 26.5-21.5 48-48 48H208c-26.5 0-48-21.5-48-48V48c0-26.5 21.5-48 48-48zM48 128h80v64H64V448H256V416h64v48c0 26.5-21.5 48-48 48H48c-26.5 0-48-21.5-48-48V176c0-26.5 21.5-48 48-48z"/></svg><button class="group-hover:text-neutral-300 transition">Copy code</button></a></div><code class="hljs theme-a11y-dark">${result}</code></pre>
+</div>
 
 {% endblock %}

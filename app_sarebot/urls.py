@@ -1,5 +1,7 @@
 from django.urls import path
 from . import views, rag
+from django.conf import settings
+from django.conf.urls.static import static
 
 urlpatterns = [
     path("", views.consultas, name="consultas"),
@@ -17,4 +19,4 @@ urlpatterns = [
     path('chat/ocultar-chat/', views.ocultarChat, name='ocultar-chat'),
     path('busquedas/call-api/', views.search_rag, name='search-rag'),
     path("busquedas/api/save-rating/", views.registrarValoracion, name="save-search-rating"),
-]
+] + static(settings.DATA_URL, document_root=settings.DATA_ROOT) # para poder abrir los archivos txt en data

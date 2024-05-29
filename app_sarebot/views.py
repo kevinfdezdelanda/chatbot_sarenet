@@ -210,6 +210,18 @@ def search_rag(request):
     def event_stream():
         complete_response = []
         response_generator = query_engine.query(query)
+        documents_used = []
+        
+        # Obtengo los archivos usados por el rag y los envio
+        for node_with_score in response_generator.source_nodes:
+            doc_info = {
+                'file_name': node_with_score.node.metadata.get('file_name'),
+                'file_path': node_with_score.node.metadata.get('file_path'),
+                'score': node_with_score.score
+            }
+            documents_used.append(doc_info)
+        yield f"event: documents_used\ndata: {json.dumps({'documents_used': documents_used})}\n\n"
+        
         for response in response_generator.response_gen:
             complete_response.append(response)
             yield f"data: {json.dumps({'content': response})}\n\n"
@@ -219,6 +231,7 @@ def search_rag(request):
             response=final_response,
             origen=origen
         )
+        
         yield f"event: done\ndata: {id_registro}\n\n"
 
     response = StreamingHttpResponse(event_stream(), content_type='text/event-stream')

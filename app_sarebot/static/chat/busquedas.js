@@ -93,6 +93,7 @@ async function llamar_api(input, select, regenerar=false) {
 		msgIa = document.getElementById('msg-generando').style.display = 'flex';
 		document.getElementById('result').style.display = 'block';
 		document.getElementById('msg-inicial').style.display = 'none';
+		document.getElementById('document-info').style.display = 'none'; // Ocultar el div con la información de documentos
 
 		// cargo el conversor de markdown
 		const md = crear_conversor_markdown();
@@ -122,11 +123,31 @@ async function llamar_api(input, select, regenerar=false) {
 			}
 		};
 
+		// Cuando recibe información de documentos usados
+        eventSource.addEventListener('documents_used', function (event) {
+			
+            try {
+                var data = JSON.parse(event.data);
+                var documentsInfo = data.documents_used;
+                var quotesList = document.getElementById('quotes-list');
+                quotesList.innerHTML = ''; // Limpiar contenido anterior
+
+                documentsInfo.forEach(function (doc, index) {
+					añadir_quote(quotesList, doc)
+                });
+
+                
+            } catch (e) {
+                console.error('Error parsing documents JSON:', e);
+            }
+        });
+
 		// Cuando finaliza el stream
 		eventSource.addEventListener('done', function (event) {
 			console.log('Stream done, closing connection');
 			console.log('generated data:\n', contenidoGenerado);
 			document.getElementById('id-registro').value = event.data;
+			document.getElementById('document-info').style.display = 'block'; // Mostrar el div con la información de documentos
 			eventSource.close(); // Cierra la conexión del lado del cliente
 			disable_enable_elements(true);
 			mostrar_ocultar_val(true, null, ratingThumbs, val_exitosa, val_error);
@@ -141,6 +162,28 @@ async function llamar_api(input, select, regenerar=false) {
 			disable_enable_elements(true);
 		};
 	}
+}
+
+// Añade los quotes al div que recibe 
+function añadir_quote(divQuotes, quote){
+	// Limita el score a dos decimales
+    let formattedScore = quote.score.toFixed(2);
+
+	// Convierte la ruta absoluta a una ruta relativa
+    let relativePath = quote.file_path.replace(/\\/g, '/').replace(/^.*\/data\//, 'data/');
+
+	quoteHtml = `<div class="relative">
+	<a href="${relativePath}" target="_blank" class="py-3 px-4 border border-neutral-200 rounded-md flex max-w-80 overflow-hidden hover:shadow duration-300 group min-w-44">
+<label class="absolute -top-2 -right-3 z-50 rounded-3xl bg-neutral-200 text-xs px-3 py-0.5 text-neutral-500" id="quote-score">${formattedScore}</label>
+		<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512" class="w-[13px] fill-blue-400 mr-2">
+			<!--!Font Awesome Free 6.5.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2024 Fonticons, Inc.-->
+			<path
+				d="M320 464c8.8 0 16-7.2 16-16V160H256c-17.7 0-32-14.3-32-32V48H64c-8.8 0-16 7.2-16 16V448c0 8.8 7.2 16 16 16H320zM0 64C0 28.7 28.7 0 64 0H229.5c17 0 33.3 6.7 45.3 18.7l90.5 90.5c12 12 18.7 28.3 18.7 45.3V448c0 35.3-28.7 64-64 64H64c-35.3 0-64-28.7-64-64V64z" />
+		</svg>
+		<p class="truncate text-neutral-600 group-hover:underline" id="quote-name">${quote.file_name}</p>
+	</a>
+</div>`
+	divQuotes.innerHTML += quoteHtml;
 }
 
 // habilita y deshabilita los campos para no poder hacer otra consulta mientas hay una en marcha
