@@ -138,6 +138,7 @@ window.onload = function () {
 							contenidoGenerado += data.content;
 							var htmlContent = md.render(contenidoGenerado);
 							// Add the content to the appropriate div
+							console.log(contenidoGenerado)
 							document.getElementById('bot' + idBot).innerHTML = htmlContent;
 						}
 					} catch (error) {
@@ -298,6 +299,7 @@ function escapeHTML(str) {
 
 // Inserta el codigo de la valoracion a la respuesta de la ia y le añade los eventos para controlar la valoracion
 function insertar_val(idBot) {
+	alert(idBot)
 	div_val = document.getElementById('val' + idBot);
 	div_val.innerHTML = `<div id="ratingThumbs${idBot}" class="flex-col items-start justify-start h-auto flex mt-4 border-t border-neutral-200 pt-4">
 	<input type="hidden" id="rating${idBot}" />
@@ -454,7 +456,7 @@ function addMessageToChatboxChatHistory(message) {
 			<div class="font-semibold select-none">SareBot</div>
 			<div class="flex flex-grow flex-col max-w-full">
 			<div class="min-h-[20px] text-message flex flex-col items-start">
-				<div>${message}</div>
+				<div class="[&>p]:mb-2 [&>pre]:my-2">${message}</div>
 			</div>
 			</div>
 		</div>
@@ -495,7 +497,7 @@ function addMessageToChatboxIA(idBot) {
                 <div class="font-semibold select-none">SareBot</div>
                 <div class="flex flex-grow flex-col max-w-full">
                 <div class="min-h-[20px] text-message flex flex-col items-start">
-                    <div id="bot${idBot}"></div>
+                    <div id="bot${idBot}" class="[&>p]:mb-2 [&>pre]:my-2"></div>
                 </div>
                 </div>
 				<div id="val${idBot}"></div>
@@ -548,7 +550,7 @@ function cargarChats(chatId) {
 	fetch(`cargar_chats/?chat_id=${chatId}`)
 		.then((response) => response.json())
 		.then((data) => {
-			chatContainer.innerHTML = '';
+			chatContainer.innerHTML = '<div id="msg-inicial"></div>';
 
 			// cargo el conversor de markdown
 			const md = crear_conversor_markdown();
