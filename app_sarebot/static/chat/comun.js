@@ -7,14 +7,23 @@ function aumentar_textarea(textArea) {
 }
 
 function preprocessMarkdown(mdContent) {
-    // Replace multiple consecutive empty lines with a unique placeholder
-    return mdContent.replace(/\n{2,}/g, (match) => {
-        return '\n<!-- EMPTYLINES ' + match.length + ' -->\n';
-    });
+    // Regex to match code blocks
+    const codeBlockRegex = /(```[\s\S]*?```)/g;
+    // Split content by code blocks
+    let parts = mdContent.split(codeBlockRegex);
+    // Process only non-code blocks parts
+    for (let i = 0; i < parts.length; i++) {
+        if (!codeBlockRegex.test(parts[i])) {
+            parts[i] = parts[i].replace(/\n{2,}/g, (match) => {
+                return '\n<!-- EMPTYLINES ' + match.length + ' -->\n';
+            });
+        }
+    }
+    return parts.join('');
 }
 
 function postprocessHTML(htmlContent) {
-    // Replace the unique placeholders with multiple <br> tags
+    // Replace placeholders with <br> tags
     return htmlContent.replace(/<!-- EMPTYLINES (\d+) -->/g, (match, num) => {
         const numberOfLines = parseInt(num, 10) - 1;
         return '<br>'.repeat(numberOfLines);
@@ -51,36 +60,6 @@ function convertMarkdownToHTML(mdContent) {
     const preprocessedContent = preprocessMarkdown(mdContent);
     const htmlContent = md.render(preprocessedContent);
     return postprocessHTML(htmlContent);
-}
-
-
-
-
-function crear_conversor_markdown() {
-    const md = markdownit({
-        html: true,
-        linkify: true,
-        typographer: true,
-		breaks: true,
-        templateTag: 'a11y-dark',
-        highlight: function (str, lang) {
-            let result;
-            if (lang && hljs.getLanguage(lang)) {
-                try {
-                    result = hljs.highlight(str, { language: lang, ignoreIllegals: true }).value;
-                } catch (__) {
-                    result = md.utils.escapeHtml(str);
-                }
-            } else {
-                result = md.utils.escapeHtml(str);
-                lang = lang || 'plaintext';
-            }
-            return `<div class="code-block"><pre class="theme-a11y-dark"><div class="flex bg-black text-neutral-400 justify-between py-2 px-5 rounded-t-md text-xs"><p>${lang}</p><a onclick="copyToClipboard(this)" class="flex gap-2 group"><svg class="fill-neutral-400 w-3 group-hover:fill-neutral-300 transition" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--!Font Awesome Free 6.5.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2024 Fonticons, Inc.--><path d="M208 0H332.1c12.7 0 24.9 5.1 33.9 14.1l67.9 67.9c9 9 14.1 21.2 14.1 33.9V336c0 26.5-21.5 48-48 48H208c-26.5 0-48-21.5-48-48V48c0-26.5 21.5-48 48-48zM48 128h80v64H64V448H256V416h64v48c0 26.5-21.5 48-48 48H48c-26.5 0-48-21.5-48-48V176c0-26.5 21.5-48 48-48z"/></svg><button class="group-hover:text-neutral-300 transition">Copy code</button></a></div><code class="hljs theme-a11y-dark">${result}</code></pre></div>`;
-        },
-    });
-
-
-    return md;
 }
 
 //////////// VALORACIONES /////////////
