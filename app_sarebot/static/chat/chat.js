@@ -136,9 +136,7 @@ window.onload = function () {
 						// Check if the JSON contains the expected content
 						if (data.content) {
 							contenidoGenerado += data.content;
-							var htmlContent = md.render(contenidoGenerado);
-							// Add the content to the appropriate div
-							console.log(contenidoGenerado)
+							var htmlContent = convertMarkdownToHTML(contenidoGenerado);
 							document.getElementById('bot' + idBot).innerHTML = htmlContent;
 						}
 					} catch (error) {
