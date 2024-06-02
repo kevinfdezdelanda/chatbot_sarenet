@@ -115,7 +115,7 @@ async function llamar_api(input, select, regenerar=false) {
 				var data = JSON.parse(event.data);
 				if (data.content) {
 					contenidoGenerado += data.content;
-					var htmlContent = md.render(contenidoGenerado);
+					var htmlContent = convertMarkdownToHTML(contenidoGenerado);
 					document.getElementById('apiResponse').innerHTML = htmlContent;
 				}
 			} catch (e) {
