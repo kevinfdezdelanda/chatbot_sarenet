@@ -6,7 +6,7 @@ from llama_index.core.llms.callbacks import llm_completion_callback
 
 API_URL = "http://172.26.215.178:1234/v1/chat/completions"
 MODEL = "bartowski/c4ai-command-r-v01-GGUF"
-TEMPERATURE = 0.4
+TEMPERATURE = 0.25
 MAX_TOKENS = -1
 
 class CustomModel(CustomLLM):
