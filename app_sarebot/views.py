@@ -43,7 +43,7 @@ def get_prompt(request):
 def api_view(request):
     user = request.GET.get('user', '')
     origen = request.GET.get('origen', '')
-    system = request.GET.get('system', '') if origen == "Consulta" else "Eres un chatbot que responde con respeto y atiende a las necesidades del usuario"
+    system = request.GET.get('system', '') if origen == "Consulta" else "Eres un chatbot que responde con respeto y atiende a las necesidades del usuario. Responde siempre en formato markdown. Cualquier bloque de código debe ir en markdown ```."
     chat_id = request.GET.get('chat', '')
     messages = None
     more_messages = False

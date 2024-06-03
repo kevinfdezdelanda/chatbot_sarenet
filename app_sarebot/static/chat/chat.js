@@ -143,7 +143,7 @@ window.onload = function () {
 					transformIds(chat_id, id_registro);
 					insertar_val(id_registro);
 					document.getElementById('id-registro' + id_registro).value = id_registro;
-					promptAnterior.idBot = userMessage;
+					promptAnterior[id_registro] = userMessage;
 					eventSource.close(); // Cierra la conexión del lado del cliente
 				});
 
@@ -151,7 +151,7 @@ window.onload = function () {
                     console.error('Error:', error);
                     userScrolledUp = false;
                     disable_enable_elements(true);
-                    promptAnterior.idBot = userMessage
+                    promptAnterior.id_registro = userMessage
                     eventSource.close();
                 };
             } catch (error) {
@@ -287,7 +287,7 @@ function insertar_val(idBot) {
     <input type="hidden" id="id-registro${idBot}" />
     <div class="flex justify-between w-full ">
         <!-- BOTON REGENERAR RESPUESTA -->
-        <button id="regenerateMsg${idBot}" class="flex gap-1 justify-center items-center px-3 py-2 bg-neutral-100 hover:bg-neutral-50 transition text-red-600 rounded-md text-xs">
+        <button id="regenerateMsg${idBot}" class="flex gap-1 mb-4 justify-center items-center px-3 py-2 bg-neutral-100 hover:bg-neutral-50 transition text-red-600 rounded-md text-xs">
             <svg class="w-3 fill-red-600" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
                 <!--!Font Awesome Free 6.5.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2024 Fonticons, Inc.-->
                 <path d="M0 224c0 17.7 14.3 32 32 32s32-14.3 32-32c0-53 43-96 96-96H320v32c0 12.9 7.8 24.6 19.8 29.6s25.7 2.2 34.9-6.9l64-64c12.5-12.5 12.5-32.8 0-45.3l-64-64c-9.2-9.2-22.9-11.9-34.9-6.9S320 19.1 320 32V64H160C71.6 64 0 135.6 0 224zm512 64c0-17.7-14.3-32-32-32s-32 14.3-32 32c0 53-43 96-96 96H192V352c0-12.9-7.8-24.6-19.8-29.6s-25.7-2.2-34.9 6.9l-64 64c-12.5 12.5-12.5 32.8 0 45.3l64 64c9.2 9.2 22.9 11.9 34.9 6.9s19.8-16.6 19.8-29.6V448H352c88.4 0 160-71.6 160-160zM32 192c-17.7 0-32 14.3-32 32V448c0 17.7 14.3 32 32 32H96c17.7 0 32-14.3 32-32V224c0-17.7-14.3-32-32-32H32z"/>
@@ -421,7 +421,7 @@ function addMessageToChatboxChatHistory(message, idBot) {
 
     // Estructura del mensaje
     messageDiv.innerHTML = `
-        <div class="flex flex-1 text-base mx-auto gap-3 md:px-5 lg:px-1 xl:px-5 md:max-w-3xl lg:max-w-[50rem] xl:max-w-[64rem]">
+        <div class="flex flex-1 text-base mx-auto gap-3 md:px-5 lg:px-1 xl:px-5 md:max-w-3xl lg:max-w-[50rem] xl:max-w-[64rem] ">
             <div class="flex-shrink-0 flex flex-col relative items-end">
                 <div class="pt-0.5">
                 <div class="gizmo-shadow-stroke flex h-6 w-6 items-center justify-center overflow-hidden rounded-full bg-white p-1">
@@ -443,7 +443,7 @@ function addMessageToChatboxChatHistory(message, idBot) {
                 <div class="font-semibold select-none">SareBot</div>
                 <div class="flex flex-grow flex-col max-w-full">
                 <div class="min-h-[20px] text-message flex flex-col items-start">
-                    <div class="[&>p]:mb-2 [&>pre]:my-2">${message}</div>
+                    <div class="[&>p]:mb-2 [&>pre]:my-2" id="bot${idBot}">${message}</div>
                 </div>
                 </div>
                 <div id="val${idBot}"></div>
@@ -464,7 +464,7 @@ function addMessageToChatboxIA(idBot) {
 
     // Estructura del mensaje
     messageDiv.innerHTML = `
-        <div id="msg${idBot}" class="flex flex-1 text-base mx-auto gap-3 md:px-5 lg:px-1 xl:px-5 md:max-w-3xl lg:max-w-[50rem] xl:max-w-[64rem]">
+        <div id="msg${idBot}" class="flex flex-1 text-base mx-auto gap-3 md:px-5 lg:px-1 xl:px-5  md:max-w-3xl lg:max-w-[50rem] xl:max-w-[64rem]">
             <div class="flex-shrink-0 flex flex-col relative items-end">
                 <div class="pt-0.5">
                 <div class="gizmo-shadow-stroke flex h-6 w-6 items-center justify-center overflow-hidden rounded-full bg-white p-1">
@@ -548,8 +548,14 @@ function cargarChats(chatId) {
                 preguntasMap.set(registro.pregunta, registro);
             });
 
+            // Vacio el dic para regenerar las preguntas
+            promptAnterior = {}
+
             // Luego recorremos el Map para añadir las preguntas y respuestas al chatbox
             preguntasMap.forEach((registro, pregunta) => {
+
+                promptAnterior[registro.id] = pregunta //Cargo el div de las preguntas
+
                 addMessageToChatbox(pregunta, 'You');
                 const idBot = registro.id; // Use the backend chat ID for each message
                 addMessageToChatboxChatHistory(convertMarkdownToHTML(registro.respuesta), idBot);
@@ -619,9 +625,8 @@ function aceptarBorrarChat() {
 }
 
 async function regenerarChats(idBot) {
-	console.log(idBot)
     // Obtener el contenido del área de texto
-    const userMessage = promptAnterior.idBot;
+    const userMessage = promptAnterior[idBot];
     // Si el mensaje no está vacío
     if (userMessage.trim()) {
         disable_enable_elements(false);
@@ -637,13 +642,15 @@ async function regenerarChats(idBot) {
 
             contenidoGenerado = '';
 
-            primer_msg = true;
             eventSource.onmessage = function (event) {
-                // Desplazar hacia abajo solo si el usuario no ha scrolleado hacia arriba
-                if (primer_msg || !userScrolledUp) {
-                    chatbox.scrollTop = chatbox.scrollHeight;
+                // Desplazar hacia abajo solo si el usuario tiene el scroll abajo
+                var scrollTop = chatbox.scrollTop;
+                var scrollHeight = chatbox.scrollHeight;
+                var clientHeight = chatbox.clientHeight;
+                var scrollAbajo = false;
+                if (scrollTop + clientHeight >= scrollHeight) {
+                    scrollAbajo = true;
                 }
-                primer_msg = false;
 
                 msg = document.getElementById('msg-generando');
                 if (msg) {
@@ -659,6 +666,11 @@ async function regenerarChats(idBot) {
 						
                         // Add the content to the appropriate div
                         document.getElementById('bot' + idBot).innerHTML = htmlContent;
+
+                        // Si el scroll esta abajo hago scroll 
+                        if (scrollAbajo) {
+                            chatbox.scrollTop = chatbox.scrollHeight;
+                        }
                     }
                 } catch (error) {
                     console.error('Error parsing JSON:', error, 'Raw Data:', event.data);
