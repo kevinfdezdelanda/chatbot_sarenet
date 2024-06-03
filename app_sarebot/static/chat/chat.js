@@ -3,7 +3,7 @@ var userScrolledUp = false;
 var lastScrollTop = 0;
 var dicValSelect = {};
 var chatIdSelect = null;
-
+var htmlMsgGenerando = `<div id="msg-generando" class="flex items-center gap-2"><p class="text-blue-500 text-sm">Generando</p><img class="w-4" src="../static/chat/images/loading.gif" alt="cargando" /></div>`;
 var promptAnterior = {}
 
 function generarID() {
@@ -26,6 +26,7 @@ window.onload = function () {
 	const textArea = document.getElementById('prompt-textarea');
 	const chatbox = document.getElementById('chatbox');
 	const idchat = generarID();
+
 
 	// Obtener el listado de chats
 	cargarHistorialChats();
@@ -464,7 +465,6 @@ function addMessageToChatboxChatHistory(message) {
 	chatbox.append(messageDiv);
 }
 
-const htmlMsgGenerando = `<div id="msg-generando" class="flex items-center gap-2"><p class="text-blue-500 text-sm">Generando</p><img class="w-4" src="../static/chat/images/loading.gif" alt="cargando" /></div>`;
 // Función para agregar mensaje de la ia al chatbox
 function addMessageToChatboxIA(idBot) {
 	// Crear un nuevo div para el mensaje
