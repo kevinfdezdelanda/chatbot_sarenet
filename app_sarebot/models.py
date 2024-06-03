@@ -49,3 +49,4 @@ class Documento(models.Model):
 def index_document(sender, instance, **kwargs):
     load_and_index_documents()
     update_query_engine()  # Actualizar el query engine
+    

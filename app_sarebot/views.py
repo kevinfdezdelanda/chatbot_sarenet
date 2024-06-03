@@ -168,7 +168,7 @@ def get_messages(system, chat: Chat, next_message):
 def cargar_chats(request):
     chat_id = request.GET.get('chat_id')
     if chat_id:
-        registros = Registro.objects.filter(chat_id=chat_id).values('id', 'pregunta', 'respuesta')
+        registros = Registro.objects.filter(chat_id=chat_id).values('id', 'pregunta', 'respuesta', 'valoracion')
         return JsonResponse(list(registros), safe=False)
     return JsonResponse({'error': 'No chat ID provided'}, status=400)
 
