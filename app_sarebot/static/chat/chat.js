@@ -4,7 +4,8 @@ var lastScrollTop = 0;
 var dicValSelect = {};
 var chatIdSelect = null;
 var htmlMsgGenerando = `<div id="msg-generando" class="flex items-center gap-2"><p class="text-blue-500 text-sm">Generando</p><img class="w-4" src="../static/chat/images/loading.gif" alt="cargando" /></div>`;
-var promptAnterior = {}
+var promptAnterior = {};
+var chat_id = null;
 
 function generarID() {
 	// Inicializamos un contador que almacenará el último ID generado
@@ -90,15 +91,16 @@ window.onload = function () {
 
 			// Agregar el mensaje al chatbox como "You"
 			const idBot = idchat();
-			if (idBot == 1) {
+			if (chat_id == null || chat_id === -1) {
 				try {
-					chat_id = await registrarChat(); // Await the Promise from registrarChat()
+					chat_id = await registrarChat();
 					console.log('The chat ID is:', chat_id);
 				} catch (error) {
 					console.error('Error with chat registration:', error);
-					return; // Exit if the chat registration fails
+					return;
 				}
 			}
+        
 
 			addMessageToChatbox(userMessage, 'You');
 			setTimeout(function () {
@@ -568,6 +570,7 @@ function cargarChats(chatId) {
 			});
 
 			chatIdSelect = chatId;
+			chat_id = chatId;
 			cargarHistorialChats();
 		})
 		.catch((error) => console.error('Error loading chats:', error));
